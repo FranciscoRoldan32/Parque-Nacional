@@ -57,6 +57,10 @@ public class view_from_park extends JFrame {
 				JLabel labelTitulo = new JLabel("Ingresar los datos del Punto de Interes");
 				labelTitulo.setBounds(620, 10, 200, 54);
 				getContentPane().add(labelTitulo);
+				
+				JButton btnExplicacion = new JButton("Explicacion");
+				btnExplicacion.setBounds(885, 527, 89, 23);
+				getContentPane().add(btnExplicacion);
 
 		// Acción del botón
 		btnGuardar.addActionListener(new ActionListener() {
