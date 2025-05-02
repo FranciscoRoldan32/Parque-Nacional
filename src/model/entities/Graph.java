@@ -6,127 +6,37 @@ import java.util.List;
 import java.util.Map;
 
 public class Graph {
-	private int quantityVertex;
 	private List<Vertex> listVertex;
-
-	private Map<Vertex, List<Edge>> adjacencyList;
+	private Map<Vertex, List<Edge>> listEdge;
 
 	public Graph() {
-		this.quantityVertex = 0;
 		this.listVertex = new ArrayList<>();
-		this.adjacencyList = new HashMap<>();
+		this.listEdge = new HashMap<>();
 	}
 
-	public Vertex addVertex(String label) {
-		for (Vertex existingVertex : listVertex) {
-			if (existingVertex.getLabel().equals(label)) {
-				throw new IllegalArgumentException("Vertex with label '" + label + "' already exists");
-			}
-		}
-		Vertex vertex = new Vertex(label);
-		listVertex.add(vertex);
-		adjacencyList.put(vertex, new ArrayList<>());
-		quantityVertex++;
-		return vertex;
+	public int getCountVertex() {
+		return listVertex.size();
 	}
 
-	public void addEdge(Vertex source, Vertex destination, Double weight) {
-		if (weight <= 0) {
-			throw new IllegalArgumentException("The graph cannot be equal to or less than 0");
-		}
-
-		for (Edge edge : adjacencyList.get(source)) {
-			if (edge.getDest().equals(destination)) {
-
-				throw new IllegalArgumentException("This Edge has already been added to the graph.");
-			}
-		}
-
-		if (source.equals(destination)) {
-			throw new IllegalArgumentException("The chart will not accept that the Source and Destination are equal");
-		}
-
-		if (!listVertex.contains(source) || !listVertex.contains(destination)) {
-			throw new IllegalArgumentException("The source or destination vertex does not exist in the graph");
-		}
-
-		adjacencyList.get(source).add(new Edge(source, destination, weight));
-	}
-
-	public List<Vertex> getVertices() {
+	public List<Vertex> getListVertex() {
 		return listVertex;
 	}
 
-	public void setVertices(List<Vertex> listVertex) {
+	public void setListVertex(List<Vertex> listVertex) {
 		this.listVertex = listVertex;
 	}
 
-	public Vertex getVertex(String nombreEpia) {
-		for (Vertex list : listVertex) {
-			if (list.getLabel() == nombreEpia) {
-				return list;
-			}
-		}
-		return null;
+	public Map<Vertex, List<Edge>> getListEdge() {
+		return listEdge;
 	}
 
-	public Map<Vertex, List<Edge>> getAdjacencyList() {
-		return adjacencyList;
+	public void setListEdge(Map<Vertex, List<Edge>> listEdge) {
+		this.listEdge = listEdge;
 	}
 
-	public int getNumVertices() {
-		return quantityVertex;
+	@Override
+	public String toString() {
+		return "Graph [listVertex=" + listVertex + ", listEdge=" + listEdge + "]";
 	}
 
-	public List<Edge> getAllEdges() {
-		List<Edge> allEdges = new ArrayList<>();
-		for (Map.Entry<Vertex, List<Edge>> entry : adjacencyList.entrySet()) {
-			allEdges.addAll(entry.getValue());
-		}
-		return allEdges;
-	}
-
-	public List<String> getAllTheEdgesInStrings() {
-		List<String> representation = new ArrayList<>();
-
-		for (Map.Entry<Vertex, List<Edge>> entry : adjacencyList.entrySet()) {
-			List<Edge> edges = entry.getValue();
-			for (Edge edge : edges) {
-				representation.add(edge.getSrc().getLabel());
-				representation.add(edge.getDest().getLabel());
-			}
-		}
-		return representation;
-	}
-
-	public List<String> generateAdjacencyMap() {
-		List<String> representation = new ArrayList<>();
-
-		for (Map.Entry<Vertex, List<Edge>> entry : adjacencyList.entrySet()) {
-			if (!entry.getValue().isEmpty()) {
-				StringBuilder line = new StringBuilder();
-				line.append(entry.getKey().getLabel()).append(" --> ");
-				List<Edge> edges = entry.getValue();
-				for (Edge edge : edges) {
-					line.append(edge.getDest().getLabel()).append("(").append(edge.getPeso()).append(") ");
-				}
-				representation.add(line.toString());
-			}
-		}
-
-		return representation;
-	}
-
-	public void print() {
-		for (Map.Entry<Vertex, List<Edge>> entry : adjacencyList.entrySet()) {
-			if (!entry.getValue().isEmpty()) {
-				System.out.print(entry.getKey().getLabel() + " --> ");
-				List<Edge> edges = entry.getValue();
-				for (Edge edge : edges) {
-					System.out.print(edge.getDest().getLabel() + "(" + edge.getPeso() + ") ");
-				}
-				System.out.println();
-			}
-		}
-	}
 }

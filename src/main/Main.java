@@ -8,6 +8,7 @@ public class Main {
 		try {
 			new GrafoController();
 		} catch (Exception e) {
+			System.out.println(e);
 			// TODO: handle exception
 		}
 	}

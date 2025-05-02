@@ -5,9 +5,9 @@ import java.util.Objects;
 public class Edge {
 	private Vertex src;
 	private Vertex dest;
-	private Double weight;
+	private int weight;
 
-	public Edge(Vertex source, Vertex dest, Double weight) {
+	public Edge(Vertex source, Vertex dest, int weight) {
 		this.src = source;
 		this.dest = dest;
 		this.weight = weight;
@@ -21,7 +21,7 @@ public class Edge {
 		return dest;
 	}
 
-	public Double getPeso() {
+	public int getWeight() {
 		return weight;
 	}
 
@@ -40,6 +40,11 @@ public class Edge {
 			return false;
 		Edge other = (Edge) obj;
 		return Objects.equals(dest, other.dest) && Objects.equals(src, other.src) && weight == other.weight;
+	}
+	
+	@Override
+	public String toString() {
+		return "[Arista de " + src.getLabel() + " a " + dest.getLabel() + " con peso " + weight + "]";
 	}
 
 }
