@@ -40,15 +40,15 @@ public class GraphService {
 
 	public void addEdge(Vertex source, Vertex destination, int weight) {
 
-		existVertex(source);
-		existVertex(destination);
+		validateVertex(source);
+		validateVertex(destination);
 
 		if (weight <= 0 || weight > 10)
 			throw new IllegalArgumentException("El peso debe estar entre 1 y 10.");
 
 		for (Edge edge : _graph.getListEdge().get(source)) {
 			if (edge.getDest().equals(destination))
-				throw new IllegalArgumentException("La arista "+edge.toString()+" ya ha sido agregada al grafo.");
+				throw new IllegalArgumentException("La arista " + edge.toString() + " ya ha sido agregada al grafo.");
 		}
 
 		if (source.equals(destination))
@@ -61,13 +61,16 @@ public class GraphService {
 		_graph.getListEdge().get(destination).add(new Edge(destination, source, weight));
 	}
 
-	private void existVertex(Vertex v) {
-		if (v == null)
-		    throw new IllegalArgumentException("El vértice no puede ser nulo.");
-		
-		if (!_graph.getListVertex().contains(v)) {
-			throw new IllegalArgumentException("El vertice " + v.getLabel() + " no existe.");
-		}
+	protected boolean existVertex(Vertex v) {
+	    return v != null && _graph.getListVertex().contains(v);
+	}
+
+	protected void validateVertex(Vertex v) {
+	    if (v == null)
+	        throw new IllegalArgumentException("El vértice no puede ser nulo.");
+
+	    if (!existVertex(v))
+	        throw new IllegalArgumentException("El vértice " + v.getLabel() + " no existe.");
 	}
 
 	public List<Vertex> getVertexs() {
@@ -156,5 +159,6 @@ public class GraphService {
 				}
 			}
 		}
+		System.out.println("\n=== ********************************************** ===");
 	}
 }
