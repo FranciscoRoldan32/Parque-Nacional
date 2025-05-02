@@ -8,9 +8,9 @@ import graph.Vertex;
 public class Edge {
 	  private Vertex src;
 	    private Vertex dest;
-	    private Double weight;
+	    private int weight;
 
-	    public Edge(Vertex source,Vertex dest, Double weight) {
+	    public Edge(Vertex source,Vertex dest, int weight) {
 	        this.src = source;
 	        this.dest = dest;
 	        this.weight = weight;
@@ -25,7 +25,7 @@ public class Edge {
 	        return dest;
 	    }
 
-	    public Double getPeso() {
+	    public int getPeso() {
 	        return weight;
 	    }
 

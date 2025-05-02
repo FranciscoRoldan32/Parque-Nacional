@@ -31,7 +31,7 @@ public class Graph {
         return vertex;
     }
 
-    public void addEdge(Vertex source, Vertex destination, Double weight) {
+    public void addEdge(Vertex source, Vertex destination,int weight) {
         if(weight <= 0){
             throw new IllegalArgumentException("The graph cannot be equal to or less than 0");
         }
@@ -135,4 +135,6 @@ public class Graph {
             }
         }
     }
+    
+    
 }
