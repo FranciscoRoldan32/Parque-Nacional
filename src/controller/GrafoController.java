@@ -19,19 +19,38 @@ public class GrafoController {
 	private void init() {
 		GraphService graph = new GraphService();
 		graph.printGraph();
-        Vertex v1 = graph.addVertex("A");
-        Vertex v2 = graph.addVertex("B");
-        Vertex v3 = graph.addVertex("C");
-        Vertex v4 = graph.addVertex("D");
-        Vertex v5 = graph.addVertex("E");
+        Vertex VA = graph.addVertex("A");
+        Vertex VB = graph.addVertex("B");
+        Vertex VC = graph.addVertex("C");
+        Vertex VD = graph.addVertex("D");
+        Vertex VE = graph.addVertex("E");
+        Vertex VF = graph.addVertex("F");
+        Vertex VG = graph.addVertex("G");
+        Vertex VH = graph.addVertex("H");
+        Vertex VI = graph.addVertex("I");
 		graph.printGraph();
 		
-        graph.addEdge(v1, v2, 4); // A - B
-        graph.addEdge(v1, v3, 7); // A - C
-        graph.addEdge(v2, v4, 2); // B - D
-        graph.addEdge(v3, v4, 9); // C - D
-        graph.addEdge(v4, v5, 3); // D - E
-        graph.addEdge(v2, v5, 6); // B - E
+        graph.addEdge(VA, VB, 4);
+        graph.addEdge(VA, VH, 8);
+        
+        graph.addEdge(VB, VC, 8);
+        graph.addEdge(VB, VH, 10);
+        
+        graph.addEdge(VC, VD, 6);
+        graph.addEdge(VC, VF, 4);
+        graph.addEdge(VC, VI, 3);
+        
+        graph.addEdge(VD, VE, 9);
+        graph.addEdge(VD, VF, 10);
+        
+        graph.addEdge(VE, VF, 10);
+        
+        graph.addEdge(VF, VG, 3);
+        
+        graph.addEdge(VG, VH, 1);
+        graph.addEdge(VG, VI, 5);
+        
+        graph.addEdge(VH, VI, 6);
         
 		graph.printGraph();
 	}

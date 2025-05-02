@@ -48,7 +48,7 @@ public class GraphService {
 
 		for (Edge edge : _graph.getListEdge().get(source)) {
 			if (edge.getDest().equals(destination))
-				throw new IllegalArgumentException("Esta arista ya ha sido agregada al grafo.");
+				throw new IllegalArgumentException("La arista "+edge.toString()+" ya ha sido agregada al grafo.");
 		}
 
 		if (source.equals(destination))
@@ -58,6 +58,7 @@ public class GraphService {
 			throw new IllegalArgumentException("El vértice de origen o destino no existe en el grafo");
 
 		_graph.getListEdge().get(source).add(new Edge(source, destination, weight));
+		_graph.getListEdge().get(destination).add(new Edge(destination, source, weight));
 	}
 
 	private void existVertex(Vertex v) {
