@@ -1,8 +1,12 @@
 package controller;
 
+import java.util.List;
+
 import javax.swing.SwingUtilities;
 
+import model.entities.Edge;
 import model.entities.Vertex;
+import model.services.AlgorithmsServices;
 import model.services.GraphService;
 import views.View_from_park;
 
@@ -51,7 +55,12 @@ public class GrafoController {
         graph.addEdge(VG, VI, 5);
         
         graph.addEdge(VH, VI, 6);
-        
+
 		graph.printGraph();
+		
+        AlgorithmsServices algorithmService = new AlgorithmsServices(graph.getGraph());
+        List<Edge> minimumSpanningTree = algorithmService.getMinimumSpanningTreePrim();
+        algorithmService.print();
+
 	}
 }

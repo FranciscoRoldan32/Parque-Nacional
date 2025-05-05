@@ -61,16 +61,20 @@ public class GraphService {
 		_graph.getListEdge().get(destination).add(new Edge(destination, source, weight));
 	}
 
+	public Graph getGraph() {
+		return _graph;
+	};
+
 	protected boolean existVertex(Vertex v) {
-	    return v != null && _graph.getListVertex().contains(v);
+		return v != null && _graph.getListVertex().contains(v);
 	}
 
 	protected void validateVertex(Vertex v) {
-	    if (v == null)
-	        throw new IllegalArgumentException("El vértice no puede ser nulo.");
+		if (v == null)
+			throw new IllegalArgumentException("El vértice no puede ser nulo.");
 
-	    if (!existVertex(v))
-	        throw new IllegalArgumentException("El vértice " + v.getLabel() + " no existe.");
+		if (!existVertex(v))
+			throw new IllegalArgumentException("El vértice " + v.getLabel() + " no existe.");
 	}
 
 	public List<Vertex> getVertexs() {
