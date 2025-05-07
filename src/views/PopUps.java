@@ -1,4 +1,4 @@
-package view_parque;
+package views;
 
 import javax.swing.*;
 import java.awt.event.*;
