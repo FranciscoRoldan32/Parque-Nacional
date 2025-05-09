@@ -1,9 +1,13 @@
 package views;
 
 import javax.swing.*;
+
+import model.entities.Vertex;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 public class View_Edge_Connections extends JDialog {
     private JComboBox<String> comboOrigen;
@@ -12,7 +16,7 @@ public class View_Edge_Connections extends JDialog {
     private DefaultListModel<String> listaAristasModel;
     private java.util.List<Arista> aristas;
 
-    public View_Edge_Connections(JFrame parent, java.util.List<String> vertices) {
+    public View_Edge_Connections(JFrame parent, List<Vertex> list) {
         super(parent, "Agregar Aristas", true);
         this.aristas = new ArrayList<>();
 
@@ -20,8 +24,8 @@ public class View_Edge_Connections extends JDialog {
 
         // Panel de selección
         JPanel panelSeleccion = new JPanel(new GridLayout(3, 2, 5, 5));
-        comboOrigen = new JComboBox<>(vertices.toArray(new String[0]));
-        comboDestino = new JComboBox<>(vertices.toArray(new String[0]));
+        comboOrigen = new JComboBox<>(list.toArray(new String[0]));
+        comboDestino = new JComboBox<>(list.toArray(new String[0]));
         spinnerPeso = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 
         panelSeleccion.add(new JLabel("Origen:"));
