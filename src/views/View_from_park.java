@@ -22,8 +22,8 @@ public class View_from_park extends JFrame {
 	private JTextField txtNombre;
 //	private JTextArea txtDescripcion;
 	private JMapViewer mapViewer;
-	private JButton btnSave;
-	private JButton btnFinal;
+	private JButton btnSave,btnPrim,btnFinal,btnKruskal,btnExplicacion;
+
 	
 
 	public View_from_park() {
@@ -82,9 +82,17 @@ public class View_from_park extends JFrame {
         btnFinal.setBounds(839, 127, 100, 30);
         getContentPane().add(btnFinal);
 
-        JButton btnExplicacion = new JButton("Explicacion");
+        btnExplicacion = new JButton("Explicacion");
         btnExplicacion.setBounds(885, 527, 89, 23);
         getContentPane().add(btnExplicacion);
+        
+        btnKruskal = new JButton("Algoritmo Kruskal");
+        btnKruskal.setBounds(635, 355, 156, 65);
+        getContentPane().add(btnKruskal);
+        
+        btnPrim = new JButton("Algoritmo Prim");
+        btnPrim.setBounds(818, 355, 156, 65);
+        getContentPane().add(btnPrim);
     }
 
     private void initLabels() {
@@ -122,11 +130,19 @@ public class View_from_park extends JFrame {
     public JButton getBtnGuardar() {
         return btnSave;
     }
+    
+    public JButton getBtnKruskal () {
+    	return btnKruskal;
+    }
+    
+    public JButton getBtnPrim() {
+    	return btnPrim;
+    }
+    
     public void clearLandscapeNameField() {
 		 txtNombre.setText("");
 	 }
     public JButton getBtnFinal() {
     	return btnFinal;
     }
- 
 }

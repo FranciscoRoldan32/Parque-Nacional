@@ -6,6 +6,7 @@ import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -25,62 +26,84 @@ public class GrafoController {
 	private View_from_park view;
 	private GraphService graphService = new GraphService();
 	private Map<String, Coordinate> landscapes = new HashMap<>();
-
-	
+	private String nombrePendiente = null;
+	private List<Vertex> vertexs;
 
 	public GrafoController(View_from_park view) {
 		this.view = view;
 
-	   
-	    SwingUtilities.invokeLater(() -> {
-	        view.setVisible(true);
-	    });
-
-	    init(); 
-	}
-	
-	
-
-    public Map<String, Coordinate> getVertices() {
-        return landscapes;
-    }
-    
-	private void init() {
-		JMapViewer _mapa= view.getMapViewer();
-		_mapa.addMouseListener(new MouseAdapter() {
-		    @Override
-		    public void mouseClicked(MouseEvent e) {
-		        if (e.getButton() == MouseEvent.BUTTON1) {
-		        	
-		            Coordinate markeradd = (Coordinate) _mapa.getPosition(e.getPoint());
-		            String nombre = view.getNombreIngresado(); // Tomar el texto del campo
-		            
-		            if (nombre == null || nombre.isEmpty()) {
-		                JOptionPane.showMessageDialog(null, "Por favor, ingrese un nombre antes de hacer clic.");
-		                return;
-		            }
-
-		            view.aggVertexToMap(nombre, markeradd);
-		            landscapes.put(nombre, markeradd);
-		            graphService.addVertex(nombre);
-		            view.clearLandscapeNameField();
-		            JOptionPane.showMessageDialog(null, "Ubicación agregada correctamente. (" + nombre + ")");
-		        }
-		    }
+		SwingUtilities.invokeLater(() -> {
+			view.setVisible(true);
 		});
-		view.getBtnFinal().addActionListener((e -> {
+
+		init();
+	}
+
+	public Map<String, Coordinate> getVertices() {
+		return landscapes;
+	}
+
+	private void init() {
+		JMapViewer _mapa = view.getMapViewer();
+
+		// Escuchar clic en el mapa solo si hay un nombre pendiente
+		_mapa.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1 && nombrePendiente != null) {
+					Coordinate markeradd = (Coordinate) _mapa.getPosition(e.getPoint());
+
+					view.aggVertexToMap(nombrePendiente, markeradd);
+					landscapes.put(nombrePendiente, markeradd);
+					graphService.addVertex(nombrePendiente);
+
+					JOptionPane.showMessageDialog(null, "Ubicación agregada correctamente. (" + nombrePendiente + ")");
+
+					view.clearLandscapeNameField();
+					nombrePendiente = null;
+					view.getBtnGuardar().setEnabled(true);
+					view.getTxtNombre().setEnabled(true);
+				}
+			}
+		});
+
+		view.getBtnGuardar().addActionListener(e -> {
+			String nombre = view.getNombreIngresado();
+
+			if (nombre == null || nombre.trim().isEmpty()) {
+				JOptionPane.showMessageDialog(null, "Por favor, ingrese un nombre antes de guardar.");
+				return;
+			}
+
+			nombrePendiente = nombre;
+			view.getBtnGuardar().setEnabled(false);
+			view.getTxtNombre().setEnabled(false);
+
+			JOptionPane.showMessageDialog(null,
+					"Ahora haga clic en el mapa para agregar la ubicación de \"" + nombre + "\".");
+		});
+
+		// Acción al presionar el botón FINALIZAR
+		view.getBtnFinal().addActionListener(e -> {
 			view.getTxtNombre().setEnabled(false);
 			view.getBtnGuardar().setEnabled(false);
-			view.getMapViewer().removeMouseListener(null);
-
-		}));
+			nombrePendiente = null;
+			JOptionPane.showMessageDialog(null, "Ingreso finalizado.");
+			abrirViewEdgeConnections();
+		});
+	}
 //PARTE DE GENERAR EL ALGORITMO 
 
 //		graphService.printGraph();
-		
+
 //        AlgorithmsServices algorithmService = new AlgorithmsServices(graphService.getGraph());
 //        List<Edge> minimumSpanningTree = algorithmService.getMinimumSpanningTreePrim();
 //        algorithmService.print();
 
+	private void abrirViewEdgeConnections() {
+	 
+	    vertexs = graphService.getVertexs();
+	    View_Edge_Connections dialog = new View_Edge_Connections(view, vertexs,landscapes);
+	    dialog.setVisible(true);
 	}
 }
