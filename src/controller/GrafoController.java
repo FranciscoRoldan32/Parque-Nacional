@@ -7,7 +7,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
+import org.openstreetmap.gui.jmapviewer.Coordinate;
+import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
+import org.openstreetmap.gui.jmapviewer.JMapViewer;
+
+import model.entities.Vertex;
+import model.entities.Edge;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -100,10 +111,12 @@ public class GrafoController {
 //        List<Edge> minimumSpanningTree = algorithmService.getMinimumSpanningTreePrim();
 //        algorithmService.print();
 
+	
+	
 	private void abrirViewEdgeConnections() {
-	 
 	    vertexs = graphService.getVertexs();
-	    View_Edge_Connections dialog = new View_Edge_Connections(view, vertexs,landscapes);
-	    dialog.setVisible(true);
+	    View_Edge_Connections dialog = new View_Edge_Connections(view, vertexs, landscapes, graphService);
+	    dialog.setVisible(true); // El dibujo ocurre en la vista, no aquí
 	}
+
 }
