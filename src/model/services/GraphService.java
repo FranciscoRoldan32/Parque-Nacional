@@ -85,9 +85,9 @@ public class GraphService {
 		_graph.setListVertex(_listVertex);
 	}
 
-	public Vertex getVertex(int id) {
+	public Vertex getVertex(String origen) {
 		for (Vertex vertex : _graph.getListVertex()) {
-			if (vertex.getId() == id) {
+			if (vertex.getLabel() == origen) {
 				return vertex;
 			}
 		}

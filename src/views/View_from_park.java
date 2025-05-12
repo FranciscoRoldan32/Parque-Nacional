@@ -2,6 +2,7 @@ package views;
 
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
+import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 
 import javax.swing.*;
 
@@ -13,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.ModuleLayer.Controller;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
@@ -114,6 +116,12 @@ public class View_from_park extends JFrame {
 	        mapViewer.revalidate();
 	        mapViewer.repaint();
 	    }
+	 public void createMapPolyMark2(List<Coordinate> route) {
+		    MapPolygonImpl polygon = new MapPolygonImpl(route);
+		    mapViewer.addMapPolygon(polygon);
+		    mapViewer.revalidate();
+		    mapViewer.repaint();
+		}
    
     // Puedes agregar getters si el controlador necesita acceder a componentes
     public JMapViewer getMapViewer() {
@@ -145,4 +153,5 @@ public class View_from_park extends JFrame {
     public JButton getBtnFinal() {
     	return btnFinal;
     }
+
 }

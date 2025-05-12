@@ -28,10 +28,10 @@ public class GrafoController {
 	private Map<String, Coordinate> landscapes = new HashMap<>();
 	private String nombrePendiente = null;
 	private List<Vertex> vertexs;
+	private JMapViewer _mapa;
 
 	public GrafoController(View_from_park view) {
 		this.view = view;
-
 		SwingUtilities.invokeLater(() -> {
 			view.setVisible(true);
 		});
@@ -44,9 +44,7 @@ public class GrafoController {
 	}
 
 	private void init() {
-		JMapViewer _mapa = view.getMapViewer();
-
-		// Escuchar clic en el mapa solo si hay un nombre pendiente
+		_mapa = view.getMapViewer();
 		_mapa.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -57,7 +55,6 @@ public class GrafoController {
 					landscapes.put(nombrePendiente, markeradd);
 					graphService.addVertex(nombrePendiente);
 
-					JOptionPane.showMessageDialog(null, "Ubicación agregada correctamente. (" + nombrePendiente + ")");
 
 					view.clearLandscapeNameField();
 					nombrePendiente = null;
@@ -101,9 +98,19 @@ public class GrafoController {
 //        algorithmService.print();
 
 	private void abrirViewEdgeConnections() {
-	 
 	    vertexs = graphService.getVertexs();
-	    View_Edge_Connections dialog = new View_Edge_Connections(view, vertexs,landscapes);
+	    View_Edge_Connections dialog = new View_Edge_Connections(view, vertexs, landscapes, _mapa);
+	    dialog.setGraphService(graphService);
+	    dialog.setController(this);
 	    dialog.setVisible(true);
 	}
+	public void volverAPrincipal() {
+	    view.getTxtNombre().setEnabled(true);
+	    view.getBtnGuardar().setEnabled(true);
+	    view.clearLandscapeNameField();
+	    nombrePendiente = null;
+	    JOptionPane.showMessageDialog(null, "Volviste a la pantalla principal.");
+	}
+	
+	
 }
