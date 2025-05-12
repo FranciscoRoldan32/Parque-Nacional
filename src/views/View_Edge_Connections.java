@@ -8,7 +8,7 @@ import model.entities.Vertex;
 import model.services.GraphService;
 import model.entities.Edge;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.*;	
 import java.util.*;
 import java.util.List;
 
@@ -23,10 +23,15 @@ public class View_Edge_Connections extends JDialog {
     private Map<String, Coordinate> landscapes;
     private JButton btnAgg;
     private JButton btnAccept;
+    private static final long serialVersionUID = 1L;
+    private JMapViewer mapViewer;
 
+    
     // Cambia el constructor para recibir GraphService
-    public View_Edge_Connections(JFrame parent, List<Vertex> vertexs, Map<String, Coordinate> landscapes, GraphService graphService) {
-        super(parent, "Agregar Aristas", true);
+
+    public View_Edge_Connections(JFrame parent, JMapViewer mapViewer, List<Vertex> vertexs, Map<String, Coordinate> landscapes, GraphService graphService) {
+        super(parent, "Agregar Aristas", true); // ¡Sigue usando el parent!
+        this.mapViewer = mapViewer;
         this._edges = new ArrayList<>();
         this.vertexs = vertexs;
         this.landscapes = landscapes;
@@ -37,8 +42,7 @@ public class View_Edge_Connections extends JDialog {
         setLocationRelativeTo(parent);
 
         initComponentes(vertexs);
-    }
-
+    }	
     private void initComponentes(List<Vertex> list) {
         JPanel panelSeleccion = new JPanel(new GridLayout(3, 2, 5, 5));
 
@@ -101,15 +105,22 @@ public class View_Edge_Connections extends JDialog {
     }
 
     private void dibujarGrafoSinDuplicados() {
-    	System.out.println("Dibujando grafo...");
-    	JMapViewer _mapa = ((View_from_park) getParent()).getMapViewer();
-        System.out.println("_mapa es: " + _mapa); // <-- Esto imprime la referencia del mapa
+        System.out.println("Dibujando grafo...");
+        JMapViewer _mapa = this.mapViewer;
+        System.out.println("_mapa es: " + _mapa);
         if (_mapa == null) {
             System.out.println("El mapa es null. ¡No se puede dibujar!");
             return;
         }
         Map<Vertex, List<Edge>> adjList = graphService.getAdjacencyList();
         Set<String> dibujadas = new HashSet<>();
+
+        System.out.println("Aristas en el grafo:");
+        for (Map.Entry<Vertex, List<Edge>> entry : adjList.entrySet()) {
+            for (Edge edge : entry.getValue()) {
+                System.out.println(edge);
+            }
+        }
 
         for (Map.Entry<Vertex, List<Edge>> entry : adjList.entrySet()) {
             Vertex origen = entry.getKey();
@@ -118,27 +129,39 @@ public class View_Edge_Connections extends JDialog {
             for (Edge edge : entry.getValue()) {
                 Vertex destino = edge.getDest();
                 Coordinate coordDestino = landscapes.get(destino.getLabel());
-                
-                if (coordOrigen != null && coordDestino != null) {
-                    String clave = generarClaveUnica(origen.getLabel(), destino.getLabel());
-                    if (!dibujadas.contains(clave)) {
+
+                if (coordOrigen == null || coordDestino == null) {
+                    System.out.println("Coordenada nula para: " + origen.getLabel() + " o " + destino.getLabel());
+                    continue;
+                }
+
+                String clave = generarClaveUnica(origen.getLabel(), destino.getLabel());
+                if (!dibujadas.contains(clave)) {
+                    try {
                         List<Coordinate> linea = new ArrayList<>();
                         linea.add(coordOrigen);
                         linea.add(coordDestino);
+                        linea.add(coordOrigen); // Cierra el polígono para simular una línea
 
                         MapPolygonImpl lineaArista = new MapPolygonImpl(linea);
-                        lineaArista.getStyle().setColor(Color.RED); 
+                        // Si tu versión soporta estilos, puedes intentar:
+                        try {
+                            lineaArista.getStyle().setColor(Color.RED);
+                        } catch (Exception ex) {
+                            // Si no soporta estilos, ignora
+                        }
                         _mapa.addMapPolygon(lineaArista);
-                        
 
+                        System.out.println("Dibujando línea entre " + origen.getLabel() + " y " + destino.getLabel());
                         dibujadas.add(clave);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 }
             }
         }
         _mapa.repaint();
     }
-
     private String generarClaveUnica(String a, String b) {
         return a.compareTo(b) < 0 ? a + "-" + b : b + "-" + a;
     }
@@ -146,4 +169,4 @@ public class View_Edge_Connections extends JDialog {
     public List<Edge> getAristas() {
         return _edges;
     }
-}
+} 
