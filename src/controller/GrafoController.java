@@ -115,8 +115,14 @@ public class GrafoController {
 	
 	private void abrirViewEdgeConnections() {
 	    vertexs = graphService.getVertexs();
-	    View_Edge_Connections dialog = new View_Edge_Connections(view, vertexs, landscapes, graphService);
+	    View_Edge_Connections dialog = new View_Edge_Connections(
+	        view, // parent
+	        view.getMapViewer(), // el mapa
+	        vertexs,
+	        landscapes,
+	        graphService
+	    );
 	    dialog.setVisible(true); // El dibujo ocurre en la vista, no aquí
 	}
-
 }
+
