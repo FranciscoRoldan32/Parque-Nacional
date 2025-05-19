@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
@@ -39,10 +40,10 @@ public class GrafoController {
 	private Map<String, Coordinate> landscapes = new HashMap<>();
 	private String nombrePendiente = null;
 	private List<Vertex> vertexs;
+	
 
 	public GrafoController(View_from_park view) {
 		this.view = view;
-
 		SwingUtilities.invokeLater(() -> {
 			view.setVisible(true);
 		});
@@ -94,7 +95,6 @@ public class GrafoController {
 					"Ahora haga clic en el mapa para agregar la ubicación de \"" + nombre + "\".");
 		});
 
-		// Acción al presionar el botón FINALIZAR
 		view.getBtnFinal().addActionListener(e -> {
 			view.getTxtNombre().setEnabled(false);
 			view.getBtnGuardar().setEnabled(false);
@@ -103,26 +103,39 @@ public class GrafoController {
 			abrirViewEdgeConnections();
 		});
 	}
-//PARTE DE GENERAR EL ALGORITMO 
-
-//		graphService.printGraph();
-
-//        AlgorithmsServices algorithmService = new AlgorithmsServices(graphService.getGraph());
-//        List<Edge> minimumSpanningTree = algorithmService.getMinimumSpanningTreePrim();
-//        algorithmService.print();
-
-	
 	
 	private void abrirViewEdgeConnections() {
 	    vertexs = graphService.getVertexs();
 	    View_Edge_Connections dialog = new View_Edge_Connections(
-	        view, // parent
-	        view.getMapViewer(), // el mapa
+	        view, 
+	        view.getMapViewer(), 
 	        vertexs,
 	        landscapes,
 	        graphService
 	    );
-	    dialog.setVisible(true); // El dibujo ocurre en la vista, no aquí
+	    dialog.setVisible(true);
+	    runAlgorytm();
+	}
+	
+	private void runAlgorytm() {
+		view.getBtnPrim().addActionListener(e -> {
+			AlgorithmsServices algorithmService = new AlgorithmsServices(graphService.getGraph());
+			List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
+			
+			algorithmService.print();
+			
+			view.getMapViewer().removeAllMapPolygons();
+			
+			for (Edge edge : mst) {
+				Vertex source = edge.getSrc();
+				Vertex dest = edge.getDest();
+
+				Coordinate coordSrc = landscapes.get(source.getLabel());
+				Coordinate coordDest = landscapes.get(dest.getLabel());
+				List<Coordinate> route = Arrays.asList (coordSrc, coordDest,coordDest,coordSrc);
+				view.drawSubgraph(route);
+			}
+		});
 	}
 }
 

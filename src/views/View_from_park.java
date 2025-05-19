@@ -2,6 +2,9 @@ package views;
 
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
+import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
+
+
 
 import javax.swing.*;
 
@@ -13,6 +16,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.lang.ModuleLayer.Controller;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
@@ -56,20 +61,6 @@ public class View_from_park extends JFrame {
         txtNombre = new JTextField();
         txtNombre.setBounds(689, 75, 250, 25);
         getContentPane().add(txtNombre);
-
-        // Si se desea incluir descripción en el futuro
-        /*
-        JLabel lblDescripcion = new JLabel("Descripción:");
-        lblDescripcion.setBounds(620, 132, 100, 25);
-        getContentPane().add(lblDescripcion);
-
-        JScrollPane scrollDescripcion = new JScrollPane();
-        scrollDescripcion.setBounds(689, 132, 250, 100);
-        getContentPane().add(scrollDescripcion);
-
-        txtDescripcion = new JTextArea();
-        scrollDescripcion.setViewportView(txtDescripcion);
-        */
     }
 
     public void initButtons() {
@@ -110,12 +101,18 @@ public class View_from_park extends JFrame {
 	        marker.getStyle().setColor(Color.BLUE);
 	        mapViewer.addMapMarker(marker);
 
-	            // Update the map
 	        mapViewer.revalidate();
 	        mapViewer.repaint();
 	    }
-   
-    // Puedes agregar getters si el controlador necesita acceder a componentes
+	 
+	public void drawSubgraph(List<Coordinate> route) {
+		MapPolygonImpl lineaArista = new MapPolygonImpl(route);
+		lineaArista.getStyle().setColor(Color.BLUE);
+		mapViewer.addMapPolygon(lineaArista);
+		mapViewer.revalidate();
+		mapViewer.repaint();		
+	}
+	
     public JMapViewer getMapViewer() {
         return mapViewer;
     }
