@@ -39,10 +39,10 @@ public class AlgorithmsServicesKruskal {
             Vertex v = edge.getDest();
             if (uf.find(u) != uf.find(v)) {
                 uf.union(u, v);
-                MinimumSpanningTree.add(edge);
+                this.MinimumSpanningTree.add(edge);
             }
         }
-        return MinimumSpanningTree;
+        return this.MinimumSpanningTree;
     }
 
     public void print() {

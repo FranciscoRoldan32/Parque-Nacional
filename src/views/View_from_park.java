@@ -25,7 +25,6 @@ public class View_from_park extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField txtNombre;
-//	private JTextArea txtDescripcion;
 	private JMapViewer mapViewer;
 	private JButton btnSave,btnPrim,btnFinal,btnKruskal,btnExplicacion;
 
@@ -54,7 +53,7 @@ public class View_from_park extends JFrame {
     }
 
     private void initFormFields() {
-        JLabel lblNombre = new JLabel("Nombre:");
+        JLabel lblNombre = new JLabel("Estacion:");
         lblNombre.setBounds(620, 75, 80, 25);
         getContentPane().add(lblNombre);
 
@@ -72,10 +71,6 @@ public class View_from_park extends JFrame {
         btnFinal = new JButton("Finalizar");
         btnFinal.setBounds(839, 127, 100, 30);
         getContentPane().add(btnFinal);
-
-        btnExplicacion = new JButton("Explicacion");
-        btnExplicacion.setBounds(885, 527, 89, 23);
-        getContentPane().add(btnExplicacion);
         
         btnKruskal = new JButton("Algoritmo Kruskal");
         btnKruskal.setBounds(635, 355, 156, 65);

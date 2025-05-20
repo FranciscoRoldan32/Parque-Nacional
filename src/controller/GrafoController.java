@@ -26,7 +26,8 @@ import javax.swing.SwingUtilities;
 
 import model.entities.Edge;
 import model.entities.Vertex;
-import model.services.AlgorithmsServices;
+import model.services.AlgorithmsServicesPrim;
+import model.services.AlgorithmsServicesKruskal;
 import model.services.GraphService;
 import views.View_Edge_Connections;
 import views.View_from_park;
@@ -58,7 +59,6 @@ public class GrafoController {
 	private void init() {
 		JMapViewer _mapa = view.getMapViewer();
 
-		// Escuchar clic en el mapa solo si hay un nombre pendiente
 		_mapa.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -119,23 +119,36 @@ public class GrafoController {
 	
 	private void runAlgorytm() {
 		view.getBtnPrim().addActionListener(e -> {
-			AlgorithmsServices algorithmService = new AlgorithmsServices(graphService.getGraph());
+			AlgorithmsServicesPrim algorithmService = new AlgorithmsServicesPrim(graphService.getGraph());
 			List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
 			
 			algorithmService.print();
+			drawMST(mst);
 			
-			view.getMapViewer().removeAllMapPolygons();
-			
-			for (Edge edge : mst) {
-				Vertex source = edge.getSrc();
-				Vertex dest = edge.getDest();
-
-				Coordinate coordSrc = landscapes.get(source.getLabel());
-				Coordinate coordDest = landscapes.get(dest.getLabel());
-				List<Coordinate> route = Arrays.asList (coordSrc, coordDest,coordDest,coordSrc);
-				view.drawSubgraph(route);
-			}
 		});
+		
+		view.getBtnKruskal().addActionListener(e -> {
+			AlgorithmsServicesKruskal algorithmServiceKruskal = new AlgorithmsServicesKruskal(graphService.getGraph());
+			List<Edge> mst = algorithmServiceKruskal.getMinimumSpanningTreeKruskal();
+
+			algorithmServiceKruskal.print();
+			drawMST(mst);
+		});
+	}
+	
+	private void drawMST(List<Edge> mst) {
+	    view.getMapViewer().removeAllMapPolygons();
+
+	    for (Edge edge : mst) {
+	        Vertex src = edge.getSrc();
+	        Vertex dst = edge.getDest();
+
+	        Coordinate c1 = landscapes.get(src.getLabel());
+	        Coordinate c2 = landscapes.get(dst.getLabel());
+
+	        List<Coordinate> route = Arrays.asList(c1, c2, c2, c1);
+	        view.drawSubgraph(route);
+	    }
 	}
 }
 

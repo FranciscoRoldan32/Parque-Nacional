@@ -11,12 +11,12 @@ import model.entities.Edge;
 import model.entities.Graph;
 import model.entities.Vertex;
 
-public class AlgorithmsServices {
+public class AlgorithmsServicesPrim {
 
 	private Graph _graph;
 	private List<Edge> MinimumSpanningTree;
 
-	public AlgorithmsServices(Graph graph) {
+	public AlgorithmsServicesPrim(Graph graph) {
 		this._graph = graph;
 		this.MinimumSpanningTree = new ArrayList<>();
 	}
@@ -63,4 +63,5 @@ public class AlgorithmsServices {
 		System.out.println("Peso total del MST: " + totalWeight);
 	}
 
+	
 }
