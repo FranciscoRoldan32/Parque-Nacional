@@ -39,7 +39,7 @@ public class GrafoController {
 	private View_from_park view;
 	private GraphService graphService = new GraphService();
 	private Map<String, Coordinate> landscapes = new HashMap<>();
-	private String nombrePendiente = null;
+	private String auxName = null;
 	private List<Vertex> vertexs;
 	
 
@@ -57,48 +57,48 @@ public class GrafoController {
 	}
 
 	private void init() {
-		JMapViewer _mapa = view.getMapViewer();
+		JMapViewer _map = view.getMapViewer();
 
-		_mapa.addMouseListener(new MouseAdapter() {
+		_map.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1 && nombrePendiente != null) {
-					Coordinate markeradd = (Coordinate) _mapa.getPosition(e.getPoint());
+				if (e.getButton() == MouseEvent.BUTTON1 && auxName != null) {
+					Coordinate markeradd = (Coordinate) _map.getPosition(e.getPoint());
 
-					view.aggVertexToMap(nombrePendiente, markeradd);
-					landscapes.put(nombrePendiente, markeradd);
-					graphService.addVertex(nombrePendiente);
+					view.aggVertexToMap(auxName, markeradd);
+					landscapes.put(auxName, markeradd);
+					graphService.addVertex(auxName);
 
-					JOptionPane.showMessageDialog(null, "Ubicación agregada correctamente. (" + nombrePendiente + ")");
+					JOptionPane.showMessageDialog(null, "Ubicación agregada correctamente. (" + auxName + ")");
 
 					view.clearLandscapeNameField();
-					nombrePendiente = null;
-					view.getBtnGuardar().setEnabled(true);
+					auxName = null;
+					view.getBtnSave().setEnabled(true);
 					view.getTxtNombre().setEnabled(true);
 				}
 			}
 		});
 
-		view.getBtnGuardar().addActionListener(e -> {
-			String nombre = view.getNombreIngresado();
+		view.getBtnSave().addActionListener(e -> {
+			String name = view.getNombreIngresado();
 
-			if (nombre == null || nombre.trim().isEmpty()) {
+			if (name == null || name.trim().isEmpty()) {
 				JOptionPane.showMessageDialog(null, "Por favor, ingrese un nombre antes de guardar.");
 				return;
 			}
 
-			nombrePendiente = nombre;
-			view.getBtnGuardar().setEnabled(false);
+			auxName = name;
+			view.getBtnSave().setEnabled(false);
 			view.getTxtNombre().setEnabled(false);
 
 			JOptionPane.showMessageDialog(null,
-					"Ahora haga clic en el mapa para agregar la ubicación de \"" + nombre + "\".");
+					"Ahora haga clic en el mapa para agregar la ubicación de \"" + name + "\".");
 		});
 
 		view.getBtnFinal().addActionListener(e -> {
 			view.getTxtNombre().setEnabled(false);
-			view.getBtnGuardar().setEnabled(false);
-			nombrePendiente = null;
+			view.getBtnSave().setEnabled(false);
+			auxName = null;
 			JOptionPane.showMessageDialog(null, "Ingreso finalizado.");
 			abrirViewEdgeConnections();
 		});

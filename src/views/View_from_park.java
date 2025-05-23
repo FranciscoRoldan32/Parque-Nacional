@@ -24,9 +24,9 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 public class View_from_park extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private JTextField txtNombre;
+	private JTextField txtName;
 	private JMapViewer mapViewer;
-	private JButton btnSave,btnPrim,btnFinal,btnKruskal,btnExplicacion;
+	private JButton btnSave,btnPrim,btnFinal,btnKruskal;
 
 	
 
@@ -57,9 +57,9 @@ public class View_from_park extends JFrame {
         lblNombre.setBounds(620, 75, 80, 25);
         getContentPane().add(lblNombre);
 
-        txtNombre = new JTextField();
-        txtNombre.setBounds(689, 75, 250, 25);
-        getContentPane().add(txtNombre);
+        txtName = new JTextField();
+        txtName.setBounds(689, 75, 250, 25);
+        getContentPane().add(txtName);
     }
 
     public void initButtons() {
@@ -87,7 +87,7 @@ public class View_from_park extends JFrame {
         getContentPane().add(labelTitulo);
     }
     public void aggVertexToMap(String vertexName, Coordinate coordinate) {
-		addVertexToMap(vertexName,coordinate);
+		addVertexToMap(vertexName,coordinate); 
 	}
 	
 	 private void addVertexToMap(String vertexName, Coordinate coordinate) {
@@ -101,9 +101,9 @@ public class View_from_park extends JFrame {
 	    }
 	 
 	public void drawSubgraph(List<Coordinate> route) {
-		MapPolygonImpl lineaArista = new MapPolygonImpl(route);
-		lineaArista.getStyle().setColor(Color.BLUE);
-		mapViewer.addMapPolygon(lineaArista);
+		MapPolygonImpl lineEdge = new MapPolygonImpl(route);
+		lineEdge.getStyle().setColor(Color.BLUE);
+		mapViewer.addMapPolygon(lineEdge);
 		mapViewer.revalidate();
 		mapViewer.repaint();		
 	}
@@ -113,13 +113,13 @@ public class View_from_park extends JFrame {
     }
 
     public JTextField getTxtNombre() {
-        return txtNombre;
+        return txtName;
     }
     public String getNombreIngresado() {
-        return txtNombre.getText().trim();
+        return txtName.getText().trim();
     }
  
-    public JButton getBtnGuardar() {
+    public JButton getBtnSave() {
         return btnSave;
     }
     
@@ -132,7 +132,7 @@ public class View_from_park extends JFrame {
     }
     
     public void clearLandscapeNameField() {
-		 txtNombre.setText("");
+		 txtName.setText("");
 	 }
     public JButton getBtnFinal() {
     	return btnFinal;

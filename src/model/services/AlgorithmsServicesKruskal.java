@@ -11,10 +11,10 @@ import java.util.List;
 
 
 
-
 public class AlgorithmsServicesKruskal {
 	private Graph _graph;
     private List<Edge> MinimumSpanningTree;
+ 
 
     public AlgorithmsServicesKruskal(Graph graph) {
         this._graph = graph;

@@ -65,11 +65,11 @@ public class GraphService {
 		return _graph;
 	};
 
-	protected boolean existVertex(Vertex v) {
+	public boolean existVertex(Vertex v) {
 		return v != null && _graph.getListVertex().contains(v);
 	}
 
-	protected void validateVertex(Vertex v) {
+	public void validateVertex(Vertex v) {
 		if (v == null)
 			throw new IllegalArgumentException("El vértice no puede ser nulo.");
 

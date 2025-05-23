@@ -1,10 +1,11 @@
-package model.services;
+package test;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
 import model.entities.Vertex;
+import model.services.GraphService;
 
 public class GraphServiceTest {
 

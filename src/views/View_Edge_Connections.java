@@ -39,10 +39,10 @@ public class View_Edge_Connections extends JDialog {
 		setSize(400, 300);
 		setLocationRelativeTo(parent);
 
-		initComponentes(vertexs);
+		initComponents(vertexs);
 	}
 
-	private void initComponentes(List<Vertex> list) {
+	private void initComponents(List<Vertex> list) {
 		JPanel panelSeleccion = new JPanel(new GridLayout(3, 2, 5, 5));
 
 		comboSrc = new JComboBox<>(list.stream().map(Vertex::getLabel).toArray(String[]::new));
@@ -59,36 +59,36 @@ public class View_Edge_Connections extends JDialog {
 		add(panelSeleccion, BorderLayout.NORTH);
 
 		listaAristasModel = new DefaultListModel<>();
-		JList<String> listaAristas = new JList<>(listaAristasModel);
-		add(new JScrollPane(listaAristas), BorderLayout.CENTER);
+		JList<String> edgeList = new JList<>(listaAristasModel);
+		add(new JScrollPane(edgeList), BorderLayout.CENTER);
 
-		JPanel panelBotones = new JPanel();
+		JPanel buttonsPanel = new JPanel();
 		btnAgg = new JButton("Agregar Arista");
 		btnAccept = new JButton("Aceptar");
-		panelBotones.add(btnAgg);
-		panelBotones.add(btnAccept);
+		buttonsPanel.add(btnAgg);
+		buttonsPanel.add(btnAccept);
 
-		add(panelBotones, BorderLayout.SOUTH);
+		add(buttonsPanel, BorderLayout.SOUTH);
 
 		btnAgg.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String origenLabel = (String) comboSrc.getSelectedItem();
-				String destinoLabel = (String) comboDest.getSelectedItem();
-				int peso = (int) spinnerWeight.getValue();
+				String srcLabel = (String) comboSrc.getSelectedItem();
+				String destLabel = (String) comboDest.getSelectedItem();
+				int weight = (int) spinnerWeight.getValue();
 
-				if (origenLabel.equals(destinoLabel)) {
+				if (srcLabel.equals(destLabel)) {
 					JOptionPane.showMessageDialog(View_Edge_Connections.this,
 							"El origen y el destino no pueden ser iguales.");
 					return;
 				}
 
-				Vertex origen = vertexs.stream().filter(v -> v.getLabel().equals(origenLabel)).findFirst().orElse(null);
-				Vertex destino = vertexs.stream().filter(v -> v.getLabel().equals(destinoLabel)).findFirst()
+				Vertex src = vertexs.stream().filter(v -> v.getLabel().equals(srcLabel)).findFirst().orElse(null);
+				Vertex dest = vertexs.stream().filter(v -> v.getLabel().equals(destLabel)).findFirst()
 						.orElse(null);
 
 				try {
-					graphService.addEdge(origen, destino, peso);
-					listaAristasModel.addElement(origenLabel + " -> " + destinoLabel + " (" + peso + ")");
+					graphService.addEdge(src, dest, weight);
+					listaAristasModel.addElement(srcLabel + " -> " + destLabel + " (" + weight + ")");
 				} catch (IllegalArgumentException ex) {
 					JOptionPane.showMessageDialog(View_Edge_Connections.this, ex.getMessage());
 				}
@@ -105,9 +105,9 @@ public class View_Edge_Connections extends JDialog {
 
 	private void drawGraph() {
 		System.out.println("Dibujando grafo...");
-		JMapViewer _mapa = this.mapViewer;
-		System.out.println("_mapa es: " + _mapa);
-		if (_mapa == null) {
+		JMapViewer _map = this.mapViewer;
+		System.out.println("_mapa es: " + _map);
+		if (_map == null) {
 			System.out.println("El mapa es null. ¡No se puede dibujar!");
 			return;
 		}
@@ -134,24 +134,24 @@ public class View_Edge_Connections extends JDialog {
 					continue;
 				}
 
-				String clave = generarClaveUnica(origen.getLabel(), destino.getLabel());
-				if (!dibujadas.contains(clave)) {
+				String key = generarClaveUnica(origen.getLabel(), destino.getLabel());
+				if (!dibujadas.contains(key)) {
 					try {
-						List<Coordinate> linea = new ArrayList<>();
-						linea.add(coordOrigen);
-						linea.add(coordDestino);
-						linea.add(coordOrigen); 
+						List<Coordinate> line = new ArrayList<>();
+						line.add(coordOrigen);
+						line.add(coordDestino);
+						line.add(coordOrigen); 
 
-						MapPolygonImpl lineaArista = new MapPolygonImpl(linea);
+						MapPolygonImpl edgeLine = new MapPolygonImpl(line);
 
 						try {
-							lineaArista.getStyle().setColor(Color.RED);
+							edgeLine.getStyle().setColor(Color.RED);
 						} catch (Exception ex) {
 						}
-						_mapa.addMapPolygon(lineaArista);
+						_map.addMapPolygon(edgeLine);
 
 						System.out.println("Dibujando línea entre " + origen.getLabel() + " y " + destino.getLabel());
-						dibujadas.add(clave);
+						dibujadas.add(key);
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
@@ -165,7 +165,7 @@ public class View_Edge_Connections extends JDialog {
 		return a.compareTo(b) < 0 ? a + "-" + b : b + "-" + a;
 	}
 
-	public List<Edge> getAristas() {
+	public List<Edge> getEdges() {
 		return _edges;
 	}
 } 
