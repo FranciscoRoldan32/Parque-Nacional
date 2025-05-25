@@ -29,13 +29,14 @@ public class View_Edge_Connections extends JDialog {
 	public View_Edge_Connections(JFrame parent, JMapViewer mapViewer, List<Vertex> vertexs,
 			Map<String, Coordinate> landscapes, GraphService graphService) {
 		super(parent, "Agregar Aristas", true);
+		setTitle("Agregar Senderos");
 		this.mapViewer = mapViewer;
 		this._edges = new ArrayList<>();
 		this.vertexs = vertexs;
 		this.landscapes = landscapes;
 		this.graphService = graphService;
 
-		setLayout(new BorderLayout());
+		getContentPane().setLayout(new BorderLayout());
 		setSize(400, 300);
 		setLocationRelativeTo(parent);
 
@@ -53,22 +54,22 @@ public class View_Edge_Connections extends JDialog {
 		panelSeleccion.add(comboSrc);
 		panelSeleccion.add(new JLabel("Destino:"));
 		panelSeleccion.add(comboDest);
-		panelSeleccion.add(new JLabel("Peso (1-10):"));
+		panelSeleccion.add(new JLabel("Es Perjudicial al Ambiente (1-10):"));
 		panelSeleccion.add(spinnerWeight);
 
-		add(panelSeleccion, BorderLayout.NORTH);
+		getContentPane().add(panelSeleccion, BorderLayout.NORTH);
 
 		listaAristasModel = new DefaultListModel<>();
 		JList<String> edgeList = new JList<>(listaAristasModel);
-		add(new JScrollPane(edgeList), BorderLayout.CENTER);
+		getContentPane().add(new JScrollPane(edgeList), BorderLayout.CENTER);
 
 		JPanel buttonsPanel = new JPanel();
-		btnAgg = new JButton("Agregar Arista");
+		btnAgg = new JButton("Agregar Sendero");
 		btnAccept = new JButton("Aceptar");
 		buttonsPanel.add(btnAgg);
 		buttonsPanel.add(btnAccept);
 
-		add(buttonsPanel, BorderLayout.SOUTH);
+		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
 		btnAgg.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
