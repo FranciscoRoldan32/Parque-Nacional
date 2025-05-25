@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.awt.Color;
+
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
@@ -118,37 +120,62 @@ public class GrafoController {
 	}
 	
 	private void runAlgorytm() {
-		view.getBtnPrim().addActionListener(e -> {
-			AlgorithmsServicesPrim algorithmService = new AlgorithmsServicesPrim(graphService.getGraph());
-			List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
-			
-			algorithmService.print();
-			drawMST(mst);
-			
-		});
-		
-		view.getBtnKruskal().addActionListener(e -> {
-			AlgorithmsServicesKruskal algorithmServiceKruskal = new AlgorithmsServicesKruskal(graphService.getGraph());
-			List<Edge> mst = algorithmServiceKruskal.getMinimumSpanningTreeKruskal();
+	    view.getBtnPrim().addActionListener(e -> {
+	        view.getBtnPrim().setEnabled(false);
+	        view.getBtnKruskal().setEnabled(false);
 
-			algorithmServiceKruskal.print();
-			drawMST(mst);
-		});
+	        long start = System.nanoTime();
+	        AlgorithmsServicesPrim algorithmService = new AlgorithmsServicesPrim(graphService.getGraph());
+	        List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
+	        long end = System.nanoTime();
+	        double tiempoMs = (end - start) / 1_000_000.0;
+
+	        algorithmService.print();
+	        drawMST(mst);
+
+	        JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Prim: " + tiempoMs + " ms");
+	    });
+
+	    view.getBtnKruskal().addActionListener(e -> {
+	        view.getBtnPrim().setEnabled(false);
+	        view.getBtnKruskal().setEnabled(false);
+
+	        long start = System.nanoTime();
+	        AlgorithmsServicesKruskal algorithmServiceKruskal = new AlgorithmsServicesKruskal(graphService.getGraph());
+	        List<Edge> mst = algorithmServiceKruskal.getMinimumSpanningTreeKruskal();
+	        long end = System.nanoTime();
+	        double tiempoMs = (end - start) / 1_000_000.0;
+
+	        algorithmServiceKruskal.print();
+	        drawMST(mst);
+
+	        JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Kruskal: " + tiempoMs + " ms");
+	    });
+	}
+	private void drawMST(List<Edge> mst) {
+        view.getMapViewer().removeAllMapPolygons();
+
+        for (Edge edge : mst) {
+            Vertex src = edge.getSrc();
+            Vertex dst = edge.getDest();
+
+            Coordinate c1 = landscapes.get(src.getLabel());
+            Coordinate c2 = landscapes.get(dst.getLabel());
+
+            List<Coordinate> route = Arrays.asList(c1, c2, c2, c1);
+
+            Color color;
+            int peso = edge.getWeight();
+            if (peso <= 3) {
+                color = Color.GREEN;
+            } else if (peso <= 7) {
+                color = Color.YELLOW;
+            } else {
+                color = Color.RED;
+            }
+            view.drawSubgraph(route, color);
+        }
 	}
 	
-	private void drawMST(List<Edge> mst) {
-	    view.getMapViewer().removeAllMapPolygons();
-
-	    for (Edge edge : mst) {
-	        Vertex src = edge.getSrc();
-	        Vertex dst = edge.getDest();
-
-	        Coordinate c1 = landscapes.get(src.getLabel());
-	        Coordinate c2 = landscapes.get(dst.getLabel());
-
-	        List<Coordinate> route = Arrays.asList(c1, c2, c2, c1);
-	        view.drawSubgraph(route);
-	    }
-	}
 }
 

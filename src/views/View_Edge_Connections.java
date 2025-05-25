@@ -105,9 +105,7 @@ public class View_Edge_Connections extends JDialog {
 	}
 
 	private void drawGraph() {
-		System.out.println("Dibujando grafo...");
 		JMapViewer _map = this.mapViewer;
-		System.out.println("_mapa es: " + _map);
 		if (_map == null) {
 			System.out.println("El mapa es null. ¡No se puede dibujar!");
 			return;

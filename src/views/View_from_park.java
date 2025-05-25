@@ -100,13 +100,13 @@ public class View_from_park extends JFrame {
 	        mapViewer.repaint();
 	    }
 	 
-	public void drawSubgraph(List<Coordinate> route) {
-		MapPolygonImpl lineEdge = new MapPolygonImpl(route);
-		lineEdge.getStyle().setColor(Color.BLUE);
-		mapViewer.addMapPolygon(lineEdge);
-		mapViewer.revalidate();
-		mapViewer.repaint();		
-	}
+	 public void drawSubgraph(List<Coordinate> route, Color color) {
+		    MapPolygonImpl lineEdge = new MapPolygonImpl(route);
+		    lineEdge.getStyle().setColor(color);
+		    mapViewer.addMapPolygon(lineEdge);
+		    mapViewer.revalidate();
+		    mapViewer.repaint();		
+		}
 	
     public JMapViewer getMapViewer() {
         return mapViewer;
