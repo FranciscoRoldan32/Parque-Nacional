@@ -4,9 +4,9 @@ import javax.swing.*;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import model.entities.Vertex;
 import model.services.GraphService;
-import model.entities.Edge;
+import model.Dto.EdgeDto;
+import model.Dto.VertexDto;
 import java.awt.*;
 import java.awt.event.*;	
 import java.util.*;
@@ -17,37 +17,35 @@ public class View_Edge_Connections extends JDialog {
 	private JComboBox<String> comboDest;
 	private JSpinner spinnerWeight;
 	private DefaultListModel<String> listaAristasModel;
-	private List<Edge> _edges;
-	private GraphService graphService;
-	private List<Vertex> vertexs;
+	private List<EdgeDto> _edges;
+	private List<VertexDto> vertexs;
 	private Map<String, Coordinate> landscapes;
 	private JButton btnAgg;
 	private JButton btnAccept;
 	private static final long serialVersionUID = 1L;
 	private JMapViewer mapViewer;
+	private EdgeDto edgeDto;
 
-	public View_Edge_Connections(JFrame parent, JMapViewer mapViewer, List<Vertex> vertexs,
-			Map<String, Coordinate> landscapes, GraphService graphService) {
+	public View_Edge_Connections(JFrame parent, JMapViewer mapViewer, List<VertexDto> vertexs,
+			Map<String, Coordinate> landscapes) {
 		super(parent, "Agregar Aristas", true);
 		setTitle("Agregar Senderos");
 		this.mapViewer = mapViewer;
 		this._edges = new ArrayList<>();
-		this.vertexs = vertexs;
 		this.landscapes = landscapes;
-		this.graphService = graphService;
-
+		this.vertexs = vertexs;
 		getContentPane().setLayout(new BorderLayout());
 		setSize(400, 300);
 		setLocationRelativeTo(parent);
-
 		initComponents(vertexs);
 	}
 
-	private void initComponents(List<Vertex> list) {
+	public void initComponents(List<VertexDto> list) {
+		this.vertexs = list;
 		JPanel panelSeleccion = new JPanel(new GridLayout(3, 2, 5, 5));
 
-		comboSrc = new JComboBox<>(list.stream().map(Vertex::getLabel).toArray(String[]::new));
-		comboDest = new JComboBox<>(list.stream().map(Vertex::getLabel).toArray(String[]::new));
+		comboSrc = new JComboBox<>(list.stream().map(VertexDto::getLabel).toArray(String[]::new));
+		comboDest = new JComboBox<>(list.stream().map(VertexDto::getLabel).toArray(String[]::new));
 		spinnerWeight = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 
 		panelSeleccion.add(new JLabel("Origen:"));
@@ -71,6 +69,10 @@ public class View_Edge_Connections extends JDialog {
 
 		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
+		addListenerBtn();
+	}
+	
+	private void addListenerBtn() {
 		btnAgg.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String srcLabel = (String) comboSrc.getSelectedItem();
@@ -83,12 +85,11 @@ public class View_Edge_Connections extends JDialog {
 					return;
 				}
 
-				Vertex src = vertexs.stream().filter(v -> v.getLabel().equals(srcLabel)).findFirst().orElse(null);
-				Vertex dest = vertexs.stream().filter(v -> v.getLabel().equals(destLabel)).findFirst()
-						.orElse(null);
+				VertexDto src = vertexs.stream().filter(v -> v.getLabel().equals(srcLabel)).findFirst().orElse(null);
+				VertexDto dest = vertexs.stream().filter(v -> v.getLabel().equals(destLabel)).findFirst().orElse(null);
 
 				try {
-					graphService.addEdge(src, dest, weight);
+					edgeDto = new EdgeDto(src, dest, weight);
 					listaAristasModel.addElement(srcLabel + " -> " + destLabel + " (" + weight + ")");
 				} catch (IllegalArgumentException ex) {
 					JOptionPane.showMessageDialog(View_Edge_Connections.this, ex.getMessage());
@@ -103,6 +104,10 @@ public class View_Edge_Connections extends JDialog {
 			}
 		});
 	}
+	
+	public EdgeDto getEdge() {
+		return edgeDto;
+	}
 
 	private void drawGraph() {
 		JMapViewer _map = this.mapViewer;
@@ -110,22 +115,22 @@ public class View_Edge_Connections extends JDialog {
 			System.out.println("El mapa es null. ¡No se puede dibujar!");
 			return;
 		}
-		Map<Vertex, List<Edge>> adjList = graphService.getAdjacencyList();
+		Map<VertexDto, List<EdgeDto>> adjList = graphService.getAdjacencyList();
 		Set<String> dibujadas = new HashSet<>();
 
 		System.out.println("Aristas en el grafo:");
-		for (Map.Entry<Vertex, List<Edge>> entry : adjList.entrySet()) {
-			for (Edge edge : entry.getValue()) {
+		for (Map.Entry<VertexDto, List<EdgeDto>> entry : adjList.entrySet()) {
+			for (EdgeDto edge : entry.getValue()) {
 				System.out.println(edge);
 			}
 		}
 
-		for (Map.Entry<Vertex, List<Edge>> entry : adjList.entrySet()) {
-			Vertex origen = entry.getKey();
+		for (Map.Entry<VertexDto, List<EdgeDto>> entry : adjList.entrySet()) {
+			VertexDto origen = entry.getKey();
 			Coordinate coordOrigen = landscapes.get(origen.getLabel());
 
-			for (Edge edge : entry.getValue()) {
-				Vertex destino = edge.getDest();
+			for (EdgeDto edge : entry.getValue()) {
+				VertexDto destino = edge.getDestDto();
 				Coordinate coordDestino = landscapes.get(destino.getLabel());
 
 				if (coordOrigen == null || coordDestino == null) {
@@ -164,7 +169,7 @@ public class View_Edge_Connections extends JDialog {
 		return a.compareTo(b) < 0 ? a + "-" + b : b + "-" + a;
 	}
 
-	public List<Edge> getEdges() {
+	public List<EdgeDto> getEdges() {
 		return _edges;
 	}
 } 

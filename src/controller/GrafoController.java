@@ -2,51 +2,37 @@ package controller;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 import java.awt.Color;
 
-
 import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 
 import model.entities.Vertex;
+import model.Dto.EdgeDto;
+import model.Dto.VertexDto;
 import model.entities.Edge;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-
-import model.entities.Edge;
-import model.entities.Vertex;
 import model.services.AlgorithmsServicesPrim;
 import model.services.AlgorithmsServicesKruskal;
 import model.services.GraphService;
 import views.View_Edge_Connections;
 import views.View_from_park;
-import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
 
 public class GrafoController {
 	private View_from_park view;
 	private GraphService graphService = new GraphService();
 	private Map<String, Coordinate> landscapes = new HashMap<>();
 	private String auxName = null;
-	private List<Vertex> vertexs;
-	
+	private List<VertexDto> vertexs;
 
-	public GrafoController(View_from_park view) {
-		this.view = view;
+	public GrafoController() {
+		view = new View_from_park();
 		SwingUtilities.invokeLater(() -> {
 			view.setVisible(true);
 		});
@@ -102,80 +88,77 @@ public class GrafoController {
 			view.getBtnSave().setEnabled(false);
 			auxName = null;
 			JOptionPane.showMessageDialog(null, "Ingreso finalizado.");
-			abrirViewEdgeConnections();
+			openViewEdgeConnections();
 		});
 	}
-	
-	private void abrirViewEdgeConnections() {
-	    vertexs = graphService.getVertexs();
-	    View_Edge_Connections dialog = new View_Edge_Connections(
-	        view, 
-	        view.getMapViewer(), 
-	        vertexs,
-	        landscapes,
-	        graphService
-	    );
-	    dialog.setVisible(true);
-	    runAlgorytm();
+
+	private void openViewEdgeConnections() {
+		vertexs = graphService.getVertexs();
+		View_Edge_Connections dialog = new View_Edge_Connections(view, view.getMapViewer(),vertexs, landscapes);
+		EdgeDto edgeDto = dialog.getEdge();
+		graphService.addEdge(edgeDto.getSrcDto(), edgeDto.getDestDto(), edgeDto.getWeigth());
+
+		dialog.setVisible(true);
+		runAlgorytm();
 	}
-	
+
 	private void runAlgorytm() {
-	    view.getBtnPrim().addActionListener(e -> {
-	        view.getBtnPrim().setEnabled(false);
-	        view.getBtnKruskal().setEnabled(false);
+		view.getBtnPrim().addActionListener(e -> {
+			view.getBtnPrim().setEnabled(false);
+			view.getBtnKruskal().setEnabled(false);
 
-	        long start = System.nanoTime();
-	        AlgorithmsServicesPrim algorithmService = new AlgorithmsServicesPrim(graphService.getGraph());
-	        List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
-	        long end = System.nanoTime();
-	        double tiempoMs = (end - start) / 1_000_000.0;
+			long start = System.nanoTime();
+			AlgorithmsServicesPrim algorithmService = new AlgorithmsServicesPrim(graphService.getGraph());
+			List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
+			long end = System.nanoTime();
+			double tiempoMs = (end - start) / 1_000_000.0;
 
-	        algorithmService.print();
-	        drawMST(mst);
+			algorithmService.print();
+			drawMST(mst);
 
-	        JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Prim: " + tiempoMs + " ms");
-	    });
+			JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Prim: " + tiempoMs + " ms");
+		});
 
-	    view.getBtnKruskal().addActionListener(e -> {
-	        view.getBtnPrim().setEnabled(false);
-	        view.getBtnKruskal().setEnabled(false);
+		view.getBtnKruskal().addActionListener(e -> {
+			view.getBtnPrim().setEnabled(false);
+			view.getBtnKruskal().setEnabled(false);
 
-	        long start = System.nanoTime();
-	        AlgorithmsServicesKruskal algorithmServiceKruskal = new AlgorithmsServicesKruskal(graphService.getGraph());
-	        List<Edge> mst = algorithmServiceKruskal.getMinimumSpanningTreeKruskal();
-	        long end = System.nanoTime();
-	        double tiempoMs = (end - start) / 1_000_000.0;
+			long start = System.nanoTime();
+			AlgorithmsServicesKruskal algorithmServiceKruskal = new AlgorithmsServicesKruskal(graphService.getGraph());
+			List<Edge> mst = algorithmServiceKruskal.getMinimumSpanningTreeKruskal();
+			long end = System.nanoTime();
+			double tiempoMs = (end - start) / 1_000_000.0;
 
-	        algorithmServiceKruskal.print();
-	        drawMST(mst);
+			algorithmServiceKruskal.print();
+			drawMST(mst);
 
-	        JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Kruskal: " + tiempoMs + " ms");
-	    });
+			JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Kruskal: " + tiempoMs + " ms");
+		});
 	}
+
 	private void drawMST(List<Edge> mst) {
-        view.getMapViewer().removeAllMapPolygons();
+		view.getMapViewer().removeAllMapPolygons();
 
-        for (Edge edge : mst) {
-            Vertex src = edge.getSrc();
-            Vertex dst = edge.getDest();
+		for (Edge edge : mst) {
+			Vertex src = edge.getSrc();
+			Vertex dst = edge.getDest();
 
-            Coordinate c1 = landscapes.get(src.getLabel());
-            Coordinate c2 = landscapes.get(dst.getLabel());
+			Coordinate c1 = landscapes.get(src.getLabel());
+			Coordinate c2 = landscapes.get(dst.getLabel());
 
-            List<Coordinate> route = Arrays.asList(c1, c2, c2, c1);
+			List<Coordinate> route = Arrays.asList(c1, c2, c2, c1);
 
-            Color color;
-            int peso = edge.getWeight();
-            if (peso <= 3) {
-                color = Color.GREEN;
-            } else if (peso <= 7) {
-                color = Color.YELLOW;
-            } else {
-                color = Color.RED;
-            }
-            view.drawSubgraph(route, color);
-        }
+			Color color;
+			int peso = edge.getWeight();
+			if (peso <= 3) {
+				color = Color.GREEN;
+			} else if (peso <= 7) {
+				color = Color.YELLOW;
+			} else {
+				color = Color.RED;
+			}
+			view.drawSubgraph(route, color);
+		}
 	}
-	
-}
 
+}
