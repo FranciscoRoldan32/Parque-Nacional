@@ -1,9 +1,11 @@
 package model.services;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import model.Dto.VertexDto;
 import model.entities.Edge;
 import model.entities.Graph;
 import model.entities.Vertex;
@@ -38,8 +40,11 @@ public class GraphService {
 		return newVertex;
 	}
 
-	public void addEdge(Vertex source, Vertex destination, int weight) {
+	public void addEdge(VertexDto sourceVertex, VertexDto destinationVertex, int weight) {
 
+		Vertex source = new Vertex(sourceVertex.getId(), sourceVertex.getLabel());
+		Vertex destination = new Vertex(destinationVertex.getId(), destinationVertex.getLabel());
+		
 		validateVertex(source);
 		validateVertex(destination);
 
@@ -77,8 +82,13 @@ public class GraphService {
 			throw new IllegalArgumentException("El vértice " + v.getLabel() + " no existe.");
 	}
 
-	public List<Vertex> getVertexs() {
-		return _graph.getListVertex();
+	public List<VertexDto> getVertexs() {
+		
+		List<VertexDto> vertexs = new ArrayList<VertexDto>();
+		for (Vertex vertex : _graph.getListVertex()) {
+			vertexs.add(new VertexDto(vertex.getLabel(), vertex.getId()));
+		}
+		return vertexs;
 	}
 
 	public void setVertexs(List<Vertex> _listVertex) {
@@ -135,8 +145,6 @@ public class GraphService {
 		}
 		return representation;
 	}
-	
-	
 
 	public void printGraph() {
 		System.out.println("=== Lista de Vértices ===");
