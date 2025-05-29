@@ -1,170 +1,131 @@
 package views;
 
 import javax.swing.*;
-import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
-import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import model.entities.Vertex;
-import model.services.GraphService;
-import model.entities.Edge;
-import java.awt.*;
-import java.awt.event.*;	
+import java.awt.*;	
 import java.util.*;
 import java.util.List;
 
 public class View_Edge_Connections extends JDialog {
-	private JComboBox<String> comboSrc;
-	private JComboBox<String> comboDest;
-	private JSpinner spinnerWeight;
-	private DefaultListModel<String> listaAristasModel;
-	private List<Edge> _edges;
-	private GraphService graphService;
-	private List<Vertex> vertexs;
-	private Map<String, Coordinate> landscapes;
-	private JButton btnAgg;
-	private JButton btnAccept;
+    /**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
-	private JMapViewer mapViewer;
+	private JComboBox<String> comboSrc;
+    private JComboBox<String> comboDest;
+    private JSpinner spinnerWeight;
+    private DefaultListModel<String> listaAristasModel;
+    private List<EdgeDTO> edgesDTO;
+    private JButton btnAdd;
+    private JButton btnAccept;
+    
+	
+    
+    public interface EdgeConnectionsListener {
+        void onEdgesDefined(List<EdgeDTO> edges);
+    }
 
-	public View_Edge_Connections(JFrame parent, JMapViewer mapViewer, List<Vertex> vertexs,
-			Map<String, Coordinate> landscapes, GraphService graphService) {
-		super(parent, "Agregar Aristas", true);
-		setTitle("Agregar Senderos");
-		this.mapViewer = mapViewer;
-		this._edges = new ArrayList<>();
-		this.vertexs = vertexs;
-		this.landscapes = landscapes;
-		this.graphService = graphService;
+    public static class EdgeDTO {
+        public final String srcLabel;
+        public final String destLabel;
+        public final int weight;
+        public EdgeDTO(String src, String dest, int w) {
+            this.srcLabel = src;
+            this.destLabel = dest;
+            this.weight = w;
+        }
+        @Override
+        public String toString() {
+            return srcLabel + " -> " + destLabel + " (" + weight + ")";
+        }
+    }
 
-		getContentPane().setLayout(new BorderLayout());
-		setSize(400, 300);
-		setLocationRelativeTo(parent);
+    public View_Edge_Connections(JFrame parent, List<String> labels,
+                                 EdgeConnectionsListener listener) {
+        super(parent, "Agregar Conexiones", true);
+        setTitle("Definir Senderos");
+        this.edgesDTO = new ArrayList<>();
 
-		initComponents(vertexs);
-	}
+        getContentPane().setLayout(new BorderLayout());
+        setSize(400, 300);
+        setLocationRelativeTo(parent);
 
-	private void initComponents(List<Vertex> list) {
-		JPanel panelSeleccion = new JPanel(new GridLayout(3, 2, 5, 5));
+        initComponents(labels);
+    }
 
-		comboSrc = new JComboBox<>(list.stream().map(Vertex::getLabel).toArray(String[]::new));
-		comboDest = new JComboBox<>(list.stream().map(Vertex::getLabel).toArray(String[]::new));
-		spinnerWeight = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+    private void initComponents(List<String> labels) {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
 
-		panelSeleccion.add(new JLabel("Origen:"));
-		panelSeleccion.add(comboSrc);
-		panelSeleccion.add(new JLabel("Destino:"));
-		panelSeleccion.add(comboDest);
-		panelSeleccion.add(new JLabel("Es Perjudicial al Ambiente (1-10):"));
-		panelSeleccion.add(spinnerWeight);
+        comboSrc  = new JComboBox<>(createModel(labels, null));
+        comboDest = new JComboBox<>(createModel(labels, null));
+        spinnerWeight = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
 
-		getContentPane().add(panelSeleccion, BorderLayout.NORTH);
+        panel.add(new JLabel("Origen:"));
+        panel.add(comboSrc);
+        panel.add(new JLabel("Destino:"));
+        panel.add(comboDest);
+        panel.add(new JLabel("Peso ambiental (1-10):"));
+        panel.add(spinnerWeight);
 
-		listaAristasModel = new DefaultListModel<>();
-		JList<String> edgeList = new JList<>(listaAristasModel);
-		getContentPane().add(new JScrollPane(edgeList), BorderLayout.CENTER);
+        getContentPane().add(panel, BorderLayout.NORTH);
 
-		JPanel buttonsPanel = new JPanel();
-		btnAgg = new JButton("Agregar Sendero");
-		btnAccept = new JButton("Aceptar");
-		buttonsPanel.add(btnAgg);
-		buttonsPanel.add(btnAccept);
+        listaAristasModel = new DefaultListModel<>();
+        JList<String> edgeList = new JList<>(listaAristasModel);
+        getContentPane().add(new JScrollPane(edgeList), BorderLayout.CENTER);
 
-		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+        JPanel btnPanel = new JPanel();
+        btnAdd = new JButton("Agregar");
+        btnAccept = new JButton("Aceptar");
+        btnPanel.add(btnAdd);
+        btnPanel.add(btnAccept);
+        getContentPane().add(btnPanel, BorderLayout.SOUTH);
 
-		btnAgg.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String srcLabel = (String) comboSrc.getSelectedItem();
-				String destLabel = (String) comboDest.getSelectedItem();
-				int weight = (int) spinnerWeight.getValue();
+        btnAdd.addActionListener(e -> onAdd());
+        btnAccept.addActionListener(e -> onAccept());
+    }
 
-				if (srcLabel.equals(destLabel)) {
-					JOptionPane.showMessageDialog(View_Edge_Connections.this,
-							"El origen y el destino no pueden ser iguales.");
-					return;
-				}
+    private ComboBoxModel<String> createModel(List<String> items, String exclude) {
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        model.addElement("-- Seleccionar --");
+        for (String it : items) {
+            if (exclude == null || !it.equals(exclude)) 
+            	model.addElement(it);
+        }
+        return model;
+    }
 
-				Vertex src = vertexs.stream().filter(v -> v.getLabel().equals(srcLabel)).findFirst().orElse(null);
-				Vertex dest = vertexs.stream().filter(v -> v.getLabel().equals(destLabel)).findFirst()
-						.orElse(null);
+	private void onAdd() {
+		String src = (String) comboSrc.getSelectedItem();
+		String dst = (String) comboDest.getSelectedItem();
+		int w = (Integer) spinnerWeight.getValue();
 
-				try {
-					graphService.addEdge(src, dest, weight);
-					listaAristasModel.addElement(srcLabel + " -> " + destLabel + " (" + weight + ")");
-				} catch (IllegalArgumentException ex) {
-					JOptionPane.showMessageDialog(View_Edge_Connections.this, ex.getMessage());
-				}
-			}
-		});
-
-		btnAccept.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				drawGraph();
-				dispose();
-			}
-		});
-	}
-
-	private void drawGraph() {
-		JMapViewer _map = this.mapViewer;
-		if (_map == null) {
-			System.out.println("El mapa es null. ¡No se puede dibujar!");
+		if (src == null || dst == null || src.equals("-- Seleccionar --") || dst.equals("-- Seleccionar --")) {
+			JOptionPane.showMessageDialog(this, "Debe elegir origen y destino.");
 			return;
 		}
-		Map<Vertex, List<Edge>> adjList = graphService.getAdjacencyList();
-		Set<String> dibujadas = new HashSet<>();
 
-		System.out.println("Aristas en el grafo:");
-		for (Map.Entry<Vertex, List<Edge>> entry : adjList.entrySet()) {
-			for (Edge edge : entry.getValue()) {
-				System.out.println(edge);
+		if (src.equals(dst)) {
+			JOptionPane.showMessageDialog(this, "Origen y destino no pueden ser iguales.");
+			return;
+		}
+
+		for (EdgeDTO dto : edgesDTO) {
+			if ((dto.srcLabel.equals(src) && dto.destLabel.equals(dst))
+					|| (dto.srcLabel.equals(dst) && dto.destLabel.equals(src))) {
+				JOptionPane.showMessageDialog(this, "Ya existe una conexión entre estos dos vértices.");
+				return;
 			}
 		}
 
-		for (Map.Entry<Vertex, List<Edge>> entry : adjList.entrySet()) {
-			Vertex origen = entry.getKey();
-			Coordinate coordOrigen = landscapes.get(origen.getLabel());
-
-			for (Edge edge : entry.getValue()) {
-				Vertex destino = edge.getDest();
-				Coordinate coordDestino = landscapes.get(destino.getLabel());
-
-				if (coordOrigen == null || coordDestino == null) {
-					System.out.println("Coordenada nula para: " + origen.getLabel() + " o " + destino.getLabel());
-					continue;
-				}
-
-				String key = generarClaveUnica(origen.getLabel(), destino.getLabel());
-				if (!dibujadas.contains(key)) {
-					try {
-						List<Coordinate> line = new ArrayList<>();
-						line.add(coordOrigen);
-						line.add(coordDestino);
-						line.add(coordOrigen); 
-
-						MapPolygonImpl edgeLine = new MapPolygonImpl(line);
-
-						try {
-							edgeLine.getStyle().setColor(Color.RED);
-						} catch (Exception ex) {
-						}
-						_map.addMapPolygon(edgeLine);
-
-						System.out.println("Dibujando línea entre " + origen.getLabel() + " y " + destino.getLabel());
-						dibujadas.add(key);
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-		}
-		
+		EdgeDTO dto = new EdgeDTO(src, dst, w);
+		edgesDTO.add(dto);
+		listaAristasModel.addElement(dto.toString());
 	}
 
-	private String generarClaveUnica(String a, String b) {
-		return a.compareTo(b) < 0 ? a + "-" + b : b + "-" + a;
-	}
-
-	public List<Edge> getEdges() {
-		return _edges;
-	}
+    private void onAccept() {
+        dispose();
+    }
+   
+    public List<EdgeDTO> getEdgesDTO() {
+        return Collections.unmodifiableList(edgesDTO);
+    }
 } 

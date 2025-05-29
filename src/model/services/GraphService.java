@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import model.Dto.VertexDto;
 import model.entities.Edge;
 import model.entities.Graph;
 import model.entities.Vertex;
@@ -40,7 +39,7 @@ public class GraphService {
 		return newVertex;
 	}
 
-	public void addEdge(VertexDto sourceVertex, VertexDto destinationVertex, int weight) {
+	public void addEdge(Vertex sourceVertex, Vertex destinationVertex, int weight) {
 
 		Vertex source = new Vertex(sourceVertex.getId(), sourceVertex.getLabel());
 		Vertex destination = new Vertex(destinationVertex.getId(), destinationVertex.getLabel());
@@ -82,11 +81,11 @@ public class GraphService {
 			throw new IllegalArgumentException("El vértice " + v.getLabel() + " no existe.");
 	}
 
-	public List<VertexDto> getVertexs() {
+	public List<Vertex> getVertexs() {
 		
-		List<VertexDto> vertexs = new ArrayList<VertexDto>();
+		List<Vertex> vertexs = new ArrayList<Vertex>();
 		for (Vertex vertex : _graph.getListVertex()) {
-			vertexs.add(new VertexDto(vertex.getLabel(), vertex.getId()));
+			vertexs.add(new Vertex(vertex.getId(), vertex.getLabel()));
 		}
 		return vertexs;
 	}

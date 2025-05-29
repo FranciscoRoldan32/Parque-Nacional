@@ -107,18 +107,27 @@ public class GrafoController {
 	}
 	
 	private void abrirViewEdgeConnections() {
-	    vertexs = graphService.getVertexs();
-	    View_Edge_Connections dialog = new View_Edge_Connections(
-	        view, 
-	        view.getMapViewer(), 
-	        vertexs,
-	        landscapes,
-	        graphService
-	    );
-	    dialog.setVisible(true);
-	    runAlgorytm();
+		vertexs = graphService.getVertexs();
+		List<String> labels = new ArrayList<>();
+		for (Vertex v : vertexs) {
+			labels.add(v.getLabel());
+		}
+		View_Edge_Connections dialog = new View_Edge_Connections(view, labels, edges -> {
+
+			for (View_Edge_Connections.EdgeDTO dto : edges) {
+				
+				Vertex src = findVertexByLabel(dto.srcLabel);
+				Vertex dst = findVertexByLabel(dto.destLabel);
+				
+				graphService.addEdge(src, dst, dto.weight);
+				
+			}
+		});
+		dialog.setVisible(true);
+		drawGraph();
+		runAlgorytm();
 	}
-	
+
 	private void runAlgorytm() {
 	    view.getBtnPrim().addActionListener(e -> {
 	        view.getBtnPrim().setEnabled(false);
@@ -175,6 +184,67 @@ public class GrafoController {
             }
             view.drawSubgraph(route, color);
         }
+	}
+	private Vertex findVertexByLabel(String label) {
+	    for (Vertex v : vertexs) {
+	        if (v.getLabel().equals(label)) {
+	        	v.toString();
+	            return v;
+	        }
+	    }
+	    return null;
+	}
+	private void drawGraph() {
+	    JMapViewer _map = view.getMapViewer();
+	    if (_map == null) {
+	        System.out.println("El mapa es null. ¡No se puede dibujar!");
+	        return;
+	    }
+
+	    Map<Vertex, List<Edge>> adjList = graphService.getAdjacencyList();
+	    Set<String> dibujadas = new HashSet<>();
+
+	    System.out.println("Aristas en el grafo:");
+
+	    for (Vertex origen : adjList.keySet()) {
+	        List<Edge> conexiones = adjList.get(origen);
+	        Coordinate coordOrigen = landscapes.get(origen.getLabel());
+
+	        for (Edge edge : conexiones) {
+	            Vertex destino = edge.getDest();
+	            Coordinate coordDestino = landscapes.get(destino.getLabel());
+
+	            if (coordOrigen == null || coordDestino == null) {
+	                System.out.println("Coordenada nula para: " + origen.getLabel() + " o " + destino.getLabel());
+	                continue;
+	            }
+
+	            String key = generarClaveUnica(origen.getLabel(), destino.getLabel());
+	            if (!dibujadas.contains(key)) {
+	                try {
+	                    List<Coordinate> line = new ArrayList<>();
+	                    line.add(coordOrigen);
+	                    line.add(coordDestino);
+	                    line.add(coordOrigen); 
+
+	                    MapPolygonImpl edgeLine = new MapPolygonImpl(line);
+	                    edgeLine.getStyle().setColor(Color.RED);
+	                    _map.addMapPolygon(edgeLine);
+
+	                    System.out.println("Dibujando línea entre " + origen.getLabel() + " y " + destino.getLabel());
+	                    dibujadas.add(key);
+	                } catch (Exception ex) {
+	                    ex.printStackTrace();
+	                }
+	            }
+	        }
+	    }
+
+	    _map.revalidate();
+	    _map.repaint();
+	}
+	private String generarClaveUnica(String a, String b) {
+		return a.compareTo(b) < 0 ? a + "-" + b : b + "-" + a;
 	}
 	
 }
