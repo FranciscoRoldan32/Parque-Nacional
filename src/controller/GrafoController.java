@@ -162,7 +162,7 @@ public class GrafoController {
 	    });
 	}
 	private void drawMST(List<Edge> mst) {
-        view.getMapViewer().removeAllMapPolygons();
+        //view.getMapViewer().removeAllMapPolygons(); // Eliminado para no borrar las aristas del grafo completo
 
         for (Edge edge : mst) {
             Vertex src = edge.getSrc();
@@ -182,8 +182,12 @@ public class GrafoController {
             } else {
                 color = Color.RED;
             }
+            // Usar drawSubgraph, que ya está configurado para añadir la línea al mapa
             view.drawSubgraph(route, color);
         }
+        // Asegurarse de repintar después de añadir las líneas del MST
+        view.getMapViewer().revalidate();
+        view.getMapViewer().repaint();
 	}
 	private Vertex findVertexByLabel(String label) {
 	    for (Vertex v : vertexs) {
@@ -205,6 +209,8 @@ public class GrafoController {
 	    Set<String> dibujadas = new HashSet<>();
 
 	    System.out.println("Aristas en el grafo:");
+        // Limpiar solo las aristas previas del grafo completo antes de redibujar
+        // view.getMapViewer().removeAllMapPolygons(); // Eliminado para no borrar las del MST si ya se dibujaron
 
 	    for (Vertex origen : adjList.keySet()) {
 	        List<Edge> conexiones = adjList.get(origen);
@@ -223,12 +229,16 @@ public class GrafoController {
 	            if (!dibujadas.contains(key)) {
 	                try {
 	                    List<Coordinate> line = new ArrayList<>();
+	                    // Usar el formato de línea que parece funcionar
 	                    line.add(coordOrigen);
 	                    line.add(coordDestino);
-	                    line.add(coordOrigen); 
+                        line.add(coordDestino);
+                        line.add(coordOrigen);
 
 	                    MapPolygonImpl edgeLine = new MapPolygonImpl(line);
-	                    edgeLine.getStyle().setColor(Color.RED);
+	                    edgeLine.getStyle().setColor(Color.GRAY); // Color para las aristas del grafo completo
+                        edgeLine.getStyle().setStroke(new java.awt.BasicStroke(1.0f)); // Hacer la línea más delgada
+
 	                    _map.addMapPolygon(edgeLine);
 
 	                    System.out.println("Dibujando línea entre " + origen.getLabel() + " y " + destino.getLabel());

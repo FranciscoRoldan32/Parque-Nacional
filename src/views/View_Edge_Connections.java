@@ -1,13 +1,13 @@
 package views;
 
 import javax.swing.*;
-import java.awt.*;	
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 
 public class View_Edge_Connections extends JDialog {
     /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	private JComboBox<String> comboSrc;
@@ -17,9 +17,11 @@ public class View_Edge_Connections extends JDialog {
     private List<EdgeDTO> edgesDTO;
     private JButton btnAdd;
     private JButton btnAccept;
-    
-	
-    
+
+    // Añadir campo para el listener
+    private EdgeConnectionsListener edgeConnectionsListener;
+
+
     public interface EdgeConnectionsListener {
         void onEdgesDefined(List<EdgeDTO> edges);
     }
@@ -44,6 +46,8 @@ public class View_Edge_Connections extends JDialog {
         super(parent, "Agregar Conexiones", true);
         setTitle("Definir Senderos");
         this.edgesDTO = new ArrayList<>();
+        // Guardar el listener
+        this.edgeConnectionsListener = listener;
 
         getContentPane().setLayout(new BorderLayout());
         setSize(400, 300);
@@ -87,7 +91,7 @@ public class View_Edge_Connections extends JDialog {
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         model.addElement("-- Seleccionar --");
         for (String it : items) {
-            if (exclude == null || !it.equals(exclude)) 
+            if (exclude == null || !it.equals(exclude))
             	model.addElement(it);
         }
         return model;
@@ -122,10 +126,14 @@ public class View_Edge_Connections extends JDialog {
 	}
 
     private void onAccept() {
+        // Llamar al listener antes de cerrar la ventana
+        if (edgeConnectionsListener != null) {
+            edgeConnectionsListener.onEdgesDefined(edgesDTO);
+        }
         dispose();
     }
-   
+
     public List<EdgeDTO> getEdgesDTO() {
         return Collections.unmodifiableList(edgesDTO);
     }
-} 
+}
