@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import model.Dto.*;
 
 public class View_Edge_Connections extends JDialog {
     /**
@@ -18,7 +19,7 @@ public class View_Edge_Connections extends JDialog {
     private JButton btnAdd;
     private JButton btnAccept;
 
-    // Añadir campo para el listener
+ 
     private EdgeConnectionsListener edgeConnectionsListener;
 
 
@@ -26,27 +27,12 @@ public class View_Edge_Connections extends JDialog {
         void onEdgesDefined(List<EdgeDTO> edges);
     }
 
-    public static class EdgeDTO {
-        public final String srcLabel;
-        public final String destLabel;
-        public final int weight;
-        public EdgeDTO(String src, String dest, int w) {
-            this.srcLabel = src;
-            this.destLabel = dest;
-            this.weight = w;
-        }
-        @Override
-        public String toString() {
-            return srcLabel + " -> " + destLabel + " (" + weight + ")";
-        }
-    }
-
     public View_Edge_Connections(JFrame parent, List<String> labels,
                                  EdgeConnectionsListener listener) {
+    	
         super(parent, "Agregar Conexiones", true);
         setTitle("Definir Senderos");
         this.edgesDTO = new ArrayList<>();
-        // Guardar el listener
         this.edgeConnectionsListener = listener;
 
         getContentPane().setLayout(new BorderLayout());
@@ -97,36 +83,35 @@ public class View_Edge_Connections extends JDialog {
         return model;
     }
 
-	private void onAdd() {
-		String src = (String) comboSrc.getSelectedItem();
-		String dst = (String) comboDest.getSelectedItem();
-		int w = (Integer) spinnerWeight.getValue();
+    private void onAdd() {
+        String src = (String) comboSrc.getSelectedItem();
+        String dst = (String) comboDest.getSelectedItem();
+        int peso = (Integer) spinnerWeight.getValue();
 
-		if (src == null || dst == null || src.equals("-- Seleccionar --") || dst.equals("-- Seleccionar --")) {
-			JOptionPane.showMessageDialog(this, "Debe elegir origen y destino.");
-			return;
-		}
+        if (src == null || dst == null || src.equals("-- Seleccionar --") || dst.equals("-- Seleccionar --")) {
+            JOptionPane.showMessageDialog(this, "Debe elegir origen y destino.");
+            return;
+        }
 
-		if (src.equals(dst)) {
-			JOptionPane.showMessageDialog(this, "Origen y destino no pueden ser iguales.");
-			return;
-		}
+        if (src.equals(dst)) {
+            JOptionPane.showMessageDialog(this, "Origen y destino no pueden ser iguales.");
+            return;
+        }
 
-		for (EdgeDTO dto : edgesDTO) {
-			if ((dto.srcLabel.equals(src) && dto.destLabel.equals(dst))
-					|| (dto.srcLabel.equals(dst) && dto.destLabel.equals(src))) {
-				JOptionPane.showMessageDialog(this, "Ya existe una conexión entre estos dos vértices.");
-				return;
-			}
-		}
+        for (EdgeDTO input : edgesDTO) {
+            if ((input.getOrigen().equals(src) && input.getDestino().equals(dst)) ||
+                (input.getOrigen().equals(dst) && input.getDestino().equals(src))) {
+                JOptionPane.showMessageDialog(this, "Ya existe una conexión entre estos dos vértices.");
+                return;
+            }
+        }
 
-		EdgeDTO dto = new EdgeDTO(src, dst, w);
-		edgesDTO.add(dto);
-		listaAristasModel.addElement(dto.toString());
-	}
+        EdgeDTO input = new EdgeDTO(src, dst, peso);
+        edgesDTO.add(input);
+        listaAristasModel.addElement(input.toString());
+    }
 
     private void onAccept() {
-        // Llamar al listener antes de cerrar la ventana
         if (edgeConnectionsListener != null) {
             edgeConnectionsListener.onEdgesDefined(edgesDTO);
         }

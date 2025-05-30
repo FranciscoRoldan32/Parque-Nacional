@@ -21,6 +21,7 @@ import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 
 import model.entities.Vertex;
+import model.Dto.EdgeDTO;
 import model.entities.Edge;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -107,25 +108,23 @@ public class GrafoController {
 	}
 	
 	private void abrirViewEdgeConnections() {
-		vertexs = graphService.getVertexs();
-		List<String> labels = new ArrayList<>();
-		for (Vertex v : vertexs) {
-			labels.add(v.getLabel());
-		}
-		View_Edge_Connections dialog = new View_Edge_Connections(view, labels, edges -> {
+		   vertexs = graphService.getVertexs();
+		    List<String> labels = new ArrayList<>();
+		    for (Vertex v : vertexs) {
+		        labels.add(v.getLabel());
+		    }
 
-			for (View_Edge_Connections.EdgeDTO dto : edges) {
-				
-				Vertex src = findVertexByLabel(dto.srcLabel);
-				Vertex dst = findVertexByLabel(dto.destLabel);
-				
-				graphService.addEdge(src, dst, dto.weight);
-				
-			}
-		});
-		dialog.setVisible(true);
-		drawGraph();
-		runAlgorytm();
+		    View_Edge_Connections dialog = new View_Edge_Connections(view, labels, inputs -> {
+		        for (EdgeDTO input : inputs) {
+		            Vertex src = findVertexByLabel(input.getOrigen());
+		            Vertex dst = findVertexByLabel(input.getDestino());
+		            graphService.addEdge(src, dst, input.getPeso());
+		        }
+		    });
+
+		    dialog.setVisible(true);
+		    drawGraph();
+		    runAlgorytm();
 	}
 
 	private void runAlgorytm() {
@@ -182,10 +181,10 @@ public class GrafoController {
             } else {
                 color = Color.RED;
             }
-            // Usar drawSubgraph, que ya está configurado para añadir la línea al mapa
+           
             view.drawSubgraph(route, color);
         }
-        // Asegurarse de repintar después de añadir las líneas del MST
+
         view.getMapViewer().revalidate();
         view.getMapViewer().repaint();
 	}
@@ -209,8 +208,6 @@ public class GrafoController {
 	    Set<String> dibujadas = new HashSet<>();
 
 	    System.out.println("Aristas en el grafo:");
-        // Limpiar solo las aristas previas del grafo completo antes de redibujar
-        // view.getMapViewer().removeAllMapPolygons(); // Eliminado para no borrar las del MST si ya se dibujaron
 
 	    for (Vertex origen : adjList.keySet()) {
 	        List<Edge> conexiones = adjList.get(origen);
@@ -229,15 +226,15 @@ public class GrafoController {
 	            if (!dibujadas.contains(key)) {
 	                try {
 	                    List<Coordinate> line = new ArrayList<>();
-	                    // Usar el formato de línea que parece funcionar
+	                   
 	                    line.add(coordOrigen);
 	                    line.add(coordDestino);
                         line.add(coordDestino);
                         line.add(coordOrigen);
 
 	                    MapPolygonImpl edgeLine = new MapPolygonImpl(line);
-	                    edgeLine.getStyle().setColor(Color.GRAY); // Color para las aristas del grafo completo
-                        edgeLine.getStyle().setStroke(new java.awt.BasicStroke(1.0f)); // Hacer la línea más delgada
+	                    edgeLine.getStyle().setColor(Color.GRAY); 
+                        edgeLine.getStyle().setStroke(new java.awt.BasicStroke(1.0f)); 
 
 	                    _map.addMapPolygon(edgeLine);
 
