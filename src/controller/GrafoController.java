@@ -2,41 +2,27 @@ package controller;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 import java.awt.Color;
-
-
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
-
 import model.entities.Vertex;
 import model.Dto.EdgeDTO;
 import model.entities.Edge;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-
-
-import model.entities.Edge;
-import model.entities.Vertex;
 import model.services.AlgorithmsServicesPrim;
 import model.services.AlgorithmsServicesKruskal;
 import model.services.GraphService;
 import views.View_Edge_Connections;
 import views.View_from_park;
-import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
 
 public class GrafoController {
 	private View_from_park view;
@@ -44,7 +30,6 @@ public class GrafoController {
 	private Map<String, Coordinate> landscapes = new HashMap<>();
 	private String auxName = null;
 	private List<Vertex> vertexs;
-	
 
 	public GrafoController(View_from_park view) {
 		this.view = view;
@@ -77,13 +62,13 @@ public class GrafoController {
 					view.clearLandscapeNameField();
 					auxName = null;
 					view.getBtnSave().setEnabled(true);
-					view.getTxtNombre().setEnabled(true);
+					view.getTxtName().setEnabled(true);
 				}
 			}
 		});
 
 		view.getBtnSave().addActionListener(e -> {
-			String name = view.getNombreIngresado();
+			String name = view.getNameEntered();
 
 			if (name == null || name.trim().isEmpty()) {
 				JOptionPane.showMessageDialog(null, "Por favor, ingrese un nombre antes de guardar.");
@@ -92,167 +77,167 @@ public class GrafoController {
 
 			auxName = name;
 			view.getBtnSave().setEnabled(false);
-			view.getTxtNombre().setEnabled(false);
+			view.getTxtName().setEnabled(false);
 
 			JOptionPane.showMessageDialog(null,
 					"Ahora haga clic en el mapa para agregar la ubicación de \"" + name + "\".");
 		});
 
-		view.getBtnFinal().addActionListener(e -> {
-			view.getTxtNombre().setEnabled(false);
+		view.getBtnEnd().addActionListener(e -> {
+			view.getTxtName().setEnabled(false);
 			view.getBtnSave().setEnabled(false);
 			auxName = null;
 			JOptionPane.showMessageDialog(null, "Ingreso finalizado.");
-			abrirViewEdgeConnections();
+			openViewEdgeConnections();
 		});
 	}
-	
-	private void abrirViewEdgeConnections() {
-		   vertexs = graphService.getVertexs();
-		    List<String> labels = new ArrayList<>();
-		    for (Vertex v : vertexs) {
-		        labels.add(v.getLabel());
-		    }
 
-		    View_Edge_Connections dialog = new View_Edge_Connections(view, labels, inputs -> {
-		        for (EdgeDTO input : inputs) {
-		            Vertex src = findVertexByLabel(input.getOrigen());
-		            Vertex dst = findVertexByLabel(input.getDestino());
-		            graphService.addEdge(src, dst, input.getPeso());
-		        }
-		    });
+	private void openViewEdgeConnections() {
+		vertexs = graphService.getVertexs();
+		List<String> labels = new ArrayList<>();
+		for (Vertex v : vertexs) {
+			labels.add(v.getLabel());
+		}
 
-		    dialog.setVisible(true);
-		    drawGraph();
-		    runAlgorytm();
+		View_Edge_Connections dialog = new View_Edge_Connections(view, labels, inputs -> {
+			for (EdgeDTO input : inputs) {
+				Vertex src = findVertexByLabel(input.getOrigen());
+				Vertex dst = findVertexByLabel(input.getDestino());
+				graphService.addEdge(src, dst, input.getPeso());
+			}
+		});
+
+		dialog.setVisible(true);
+		drawGraph();
+		runAlgorytm();
 	}
 
 	private void runAlgorytm() {
-	    view.getBtnPrim().addActionListener(e -> {
-	        view.getBtnPrim().setEnabled(false);
-	        view.getBtnKruskal().setEnabled(false);
+		view.getBtnPrim().addActionListener(e -> {
+			view.getBtnPrim().setEnabled(false);
+			view.getBtnKruskal().setEnabled(false);
 
-	        long start = System.nanoTime();
-	        AlgorithmsServicesPrim algorithmService = new AlgorithmsServicesPrim(graphService.getGraph());
-	        List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
-	        long end = System.nanoTime();
-	        double tiempoMs = (end - start) / 1_000_000.0;
+			long start = System.nanoTime();
+			AlgorithmsServicesPrim algorithmService = new AlgorithmsServicesPrim(graphService.getGraph());
+			List<Edge> mst = algorithmService.getMinimumSpanningTreePrim();
+			long end = System.nanoTime();
+			double tiempoMs = (end - start) / 1_000_000.0;
 
-	        algorithmService.print();
-	        drawMST(mst);
+			algorithmService.print();
+			drawMST(mst);
 
-	        JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Prim: " + tiempoMs + " ms");
-	    });
+			JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Prim: " + tiempoMs + " ms");
+		});
 
-	    view.getBtnKruskal().addActionListener(e -> {
-	        view.getBtnPrim().setEnabled(false);
-	        view.getBtnKruskal().setEnabled(false);
+		view.getBtnKruskal().addActionListener(e -> {
+			view.getBtnPrim().setEnabled(false);
+			view.getBtnKruskal().setEnabled(false);
 
-	        long start = System.nanoTime();
-	        AlgorithmsServicesKruskal algorithmServiceKruskal = new AlgorithmsServicesKruskal(graphService.getGraph());
-	        List<Edge> mst = algorithmServiceKruskal.getMinimumSpanningTreeKruskal();
-	        long end = System.nanoTime();
-	        double tiempoMs = (end - start) / 1_000_000.0;
+			long start = System.nanoTime();
+			AlgorithmsServicesKruskal algorithmServiceKruskal = new AlgorithmsServicesKruskal(graphService.getGraph());
+			List<Edge> mst = algorithmServiceKruskal.getMinimumSpanningTreeKruskal();
+			long end = System.nanoTime();
+			double tiempoMs = (end - start) / 1_000_000.0;
 
-	        algorithmServiceKruskal.print();
-	        drawMST(mst);
+			algorithmServiceKruskal.print();
+			drawMST(mst);
 
-	        JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Kruskal: " + tiempoMs + " ms");
-	    });
+			JOptionPane.showMessageDialog(null, "Tiempo de ejecución de Kruskal: " + tiempoMs + " ms");
+		});
 	}
+
 	private void drawMST(List<Edge> mst) {
-        //view.getMapViewer().removeAllMapPolygons(); // Eliminado para no borrar las aristas del grafo completo
 
-        for (Edge edge : mst) {
-            Vertex src = edge.getSrc();
-            Vertex dst = edge.getDest();
+		for (Edge edge : mst) {
+			Vertex src = edge.getSrc();
+			Vertex dst = edge.getDest();
 
-            Coordinate c1 = landscapes.get(src.getLabel());
-            Coordinate c2 = landscapes.get(dst.getLabel());
+			Coordinate c1 = landscapes.get(src.getLabel());
+			Coordinate c2 = landscapes.get(dst.getLabel());
 
-            List<Coordinate> route = Arrays.asList(c1, c2, c2, c1);
+			List<Coordinate> route = Arrays.asList(c1, c2, c2, c1);
 
-            Color color;
-            int peso = edge.getWeight();
-            if (peso <= 3) {
-                color = Color.GREEN;
-            } else if (peso <= 7) {
-                color = Color.YELLOW;
-            } else {
-                color = Color.RED;
-            }
-           
-            view.drawSubgraph(route, color);
-        }
+			Color color;
+			int peso = edge.getWeight();
+			if (peso <= 3) {
+				color = Color.GREEN;
+			} else if (peso <= 7) {
+				color = Color.YELLOW;
+			} else {
+				color = Color.RED;
+			}
 
-        view.getMapViewer().revalidate();
-        view.getMapViewer().repaint();
+			view.drawSubgraph(route, color);
+		}
+
+		view.getMapViewer().revalidate();
+		view.getMapViewer().repaint();
 	}
+
 	private Vertex findVertexByLabel(String label) {
-	    for (Vertex v : vertexs) {
-	        if (v.getLabel().equals(label)) {
-	        	v.toString();
-	            return v;
-	        }
-	    }
-	    return null;
+		for (Vertex v : vertexs) {
+			if (v.getLabel().equals(label)) {
+				v.toString();
+				return v;
+			}
+		}
+		return null;
 	}
+
 	private void drawGraph() {
-	    JMapViewer _map = view.getMapViewer();
-	    if (_map == null) {
-	        System.out.println("El mapa es null. ¡No se puede dibujar!");
-	        return;
-	    }
+		JMapViewer _map = view.getMapViewer();
+		if (_map == null) {
+			System.out.println("El mapa es null. ¡No se puede dibujar!");
+			return;
+		}
 
-	    Map<Vertex, List<Edge>> adjList = graphService.getAdjacencyList();
-	    Set<String> dibujadas = new HashSet<>();
+		Map<Vertex, List<Edge>> adjList = graphService.getAdjacencyList();
+		Set<String> drawnSet = new HashSet<>();
 
-	    System.out.println("Aristas en el grafo:");
+		for (Vertex origin : adjList.keySet()) {
+			List<Edge> connections = adjList.get(origin);
+			Coordinate coordOrigin = landscapes.get(origin.getLabel());
 
-	    for (Vertex origen : adjList.keySet()) {
-	        List<Edge> conexiones = adjList.get(origen);
-	        Coordinate coordOrigen = landscapes.get(origen.getLabel());
+			for (Edge edge : connections) {
+				Vertex dest = edge.getDest();
+				Coordinate coorddestination = landscapes.get(dest.getLabel());
 
-	        for (Edge edge : conexiones) {
-	            Vertex destino = edge.getDest();
-	            Coordinate coordDestino = landscapes.get(destino.getLabel());
+				if (coordOrigin == null || coorddestination == null) {
+					System.out.println("Coordenada nula para: " + origin.getLabel() + " o " + dest.getLabel());
+					continue;
+				}
 
-	            if (coordOrigen == null || coordDestino == null) {
-	                System.out.println("Coordenada nula para: " + origen.getLabel() + " o " + destino.getLabel());
-	                continue;
-	            }
+				String key = generatesUniqueKey(origin.getLabel(), dest.getLabel());
+				if (!drawnSet.contains(key)) {
+					try {
+						List<Coordinate> line = new ArrayList<>();
 
-	            String key = generarClaveUnica(origen.getLabel(), destino.getLabel());
-	            if (!dibujadas.contains(key)) {
-	                try {
-	                    List<Coordinate> line = new ArrayList<>();
-	                   
-	                    line.add(coordOrigen);
-	                    line.add(coordDestino);
-                        line.add(coordDestino);
-                        line.add(coordOrigen);
+						line.add(coordOrigin);
+						line.add(coorddestination);
+						line.add(coorddestination);
+						line.add(coordOrigin);
 
-	                    MapPolygonImpl edgeLine = new MapPolygonImpl(line);
-	                    edgeLine.getStyle().setColor(Color.GRAY); 
-                        edgeLine.getStyle().setStroke(new java.awt.BasicStroke(1.0f)); 
+						MapPolygonImpl edgeLine = new MapPolygonImpl(line);
+						edgeLine.getStyle().setColor(Color.GRAY);
+						edgeLine.getStyle().setStroke(new java.awt.BasicStroke(1.0f));
 
-	                    _map.addMapPolygon(edgeLine);
+						_map.addMapPolygon(edgeLine);
 
-	                    System.out.println("Dibujando línea entre " + origen.getLabel() + " y " + destino.getLabel());
-	                    dibujadas.add(key);
-	                } catch (Exception ex) {
-	                    ex.printStackTrace();
-	                }
-	            }
-	        }
-	    }
+						System.out.println("Dibujando línea entre " + origin.getLabel() + " y " + dest.getLabel());
+						drawnSet.add(key);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		}
 
-	    _map.revalidate();
-	    _map.repaint();
+		_map.revalidate();
+		_map.repaint();
 	}
-	private String generarClaveUnica(String a, String b) {
+
+	private String generatesUniqueKey(String a, String b) {
 		return a.compareTo(b) < 0 ? a + "-" + b : b + "-" + a;
 	}
-	
-}
 
+}
